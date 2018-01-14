@@ -11,40 +11,116 @@ class DbService {
 
     }
 
+    def addAmount(String userId, Float amount){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
 
-    def addNewUserToUsersTable(String userId, Float balance){
-        Users new_user = new Users()
+        if(!row){
+            return 0
+        }
 
-        new_user.userid = userId
-        new_user.shares = 0
-        new_user.balance = balance
-        new_user.save()
+        row.balance += amount
+        row.save()
+        return 1
     }
 
-    def isUsernameDuplicated(String userId){
-        // get total number of rows in table
-        def row_count = Users.createCriteria().get {
-            projections {
-                countDistinct("id")
-            }
-        }
-        // get all rows in table
-        def results = Users.createCriteria().list {
-            and {
-                ge("shares", 0)
-            }
+    def removeAmount(String userId, Float amount){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
         }
 
-        // check if id duplicates
-        // TODO: use hash later for faster lookup
-        def i
-        for(i=0;i<row_count;i++){
-            if(results[i].userid.equals(userId)){
-                return true
-            }
+        if(!row){
+            return 0
+        }
+
+        row.balance -= amount
+        row.save()
+        return 1
+    }
+
+    //TODO: change balance type
+    def addNewUser(String userId, Float balance){
+        if(userExists(userId)){
+            return 0
+        }else{
+            def new_user = new Users(userid:userId,balance:balance)
+            new_user.stockSymbols = Collections.emptyMap()
+            new_user.save()
+            return 1
+        }
+    }
+
+    def userExists(String userId){
+        // get all rows in table
+        def results = Users.createCriteria().get{
+            eq 'userid', userId
+        }
+
+        if(results){
+            return true
         }
         return false
     }
 
+    // TODO: need to be updated once there are more than one company
+    def getUserBalance(String userId){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
 
+        if(!row) {
+            return [0,0]
+        }else{
+            return [1,row.balance]
+        }
+    }
+
+    //TODO: typecheck
+    def updateUserInfo(String userId, Float balance, Integer shares){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
+
+        if(!row){
+            return 0
+        }
+        println("original balance: " + row.balance)
+        row.balance = balance
+        row.shares  = shares
+        row.save()
+
+        return 1
+    }
+
+
+    def getUserStocks(String userId, String symbol){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
+
+        if(!row) {
+            return [0,0]
+        }else{
+            return [1,row.stockSymbols[symbol]]
+        }
+    }
+
+    def addStockShares(String userId, String symbol, Integer shares){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
+
+        if(!row){
+            return 0
+        }
+
+        // if not in list, add it in
+        if(!row.stockSymbols[symbol]){
+            row.stockSymbols[symbol] = Integer.toString(shares)
+        }else{
+            row.stockSymbols[symbol] = Integer.toString(row.stockSymbols[symbol].toInteger() + shares)
+        }
+        return 1
+    }
 }
