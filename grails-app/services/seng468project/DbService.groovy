@@ -102,7 +102,12 @@ class DbService {
         if(!row) {
             return [0,0]
         }else{
-            return [1,row.stockSymbols[symbol]]
+            if(row.stockSymbols[symbol]){
+                return [1,row.stockSymbols[symbol]]
+            }else{
+                return [1,0]
+            }
+
         }
     }
 
@@ -121,6 +126,20 @@ class DbService {
         }else{
             row.stockSymbols[symbol] = Integer.toString(row.stockSymbols[symbol].toInteger() + shares)
         }
+        return 1
+    }
+
+    def removeStockShares(String userId, String symbol, Integer shares){
+        def row = Users.createCriteria().get{
+            eq'userid',userId
+        }
+
+        if(!row){
+            return 0
+        }
+
+        row.stockSymbols[symbol] = Integer.toString(row.stockSymbols[symbol].toInteger() - shares)
+
         return 1
     }
 }

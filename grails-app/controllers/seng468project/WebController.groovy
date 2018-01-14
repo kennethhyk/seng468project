@@ -23,7 +23,7 @@ class WebController {
         }
     }
 
-    //NOTE: negative values allowed
+    //NOTE: negative values allowed, TS to check valid balance
     def removeAmount(String userId, Float amount){
         if(dbService.removeAmount(userId, amount)){
             return [msg: "removed balance: " + amount + " to user : " + userId]
@@ -62,6 +62,15 @@ class WebController {
     def addStockShares(String userId, String symbol, Integer shares){
         if(dbService.addStockShares(userId,symbol,shares)){
             return [msg:  "added " + shares + " shares to stockSymbol: " +symbol ]
+        }else{
+            return [msg:"ERROR: no records found for user '" + userId + "'"]
+        }
+    }
+
+    // TS server to check valid amount before removing shares
+    def  removeStockShares(String userId, String symbol, Integer shares){
+        if(dbService.removeStockShares(userId,symbol,shares)){
+            return [msg:  "removed " + shares + " shares from stockSymbol: " +symbol ]
         }else{
             return [msg:"ERROR: no records found for user '" + userId + "'"]
         }
