@@ -40,15 +40,25 @@ class DbService {
     }
 
     //TODO: change balance type
-    def addNewUser(String userId, Float balance){
+    def addNewUser(String userId, String password, Float balance){
         if(userExists(userId)){
             return 0
         }else{
-            def new_user = new Users(userid:userId,balance:balance)
+            def new_user = new Users(userid:userId,password:password,balance:balance)
             new_user.stockSymbols = Collections.emptyMap()
             new_user.save()
             return 1
         }
+    }
+
+    def checkPassword(String userId, String password){
+        def results = Users.createCriteria().get{
+            eq 'userid', userId
+            and{
+                eq 'password',password
+            }
+        }
+        return results
     }
 
     def userExists(String userId){

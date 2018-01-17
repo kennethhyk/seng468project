@@ -6,12 +6,20 @@ class WebController {
 
     }
 
-    def addNewUser(String userId, Float balance) {
+    def addNewUser(String userId,String password, Float balance) {
         //TODO: sanitize input
-        if(dbService.addNewUser(userId,balance)){
+        if(dbService.addNewUser(userId,password,balance)){
             return [msg:"User '" + userId + "' successfully created"]
         }else{
             return [msg:"ERROR: User '" + userId + "' already exits"]
+        }
+    }
+
+    def checkPassword(String userId, String password){
+        if(dbService.checkPassword(userId,password)){
+            return [msg:"User '" + userId + "' authorized"]
+        }else{
+            return [msg:"ERROR: incorrect username or password"]
         }
     }
 
