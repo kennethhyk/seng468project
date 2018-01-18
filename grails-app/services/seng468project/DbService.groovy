@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
+import java.security.*
 
 @Transactional
 class DbService {
@@ -40,15 +41,37 @@ class DbService {
     }
 
     //TODO: change balance type
-    def addNewUser(String userId, Float balance){
+    def addNewUser(String userId, String password, Float balance){
         if(userExists(userId)){
             return 0
         }else{
-            def new_user = new Users(userid:userId,balance:balance)
+            password = digestPassword(password)
+            def new_user = new Users(userid:userId,password:password,balance:balance)
             new_user.stockSymbols = Collections.emptyMap()
             new_user.save()
             return 1
         }
+    }
+
+    def digestPassword(String password){
+        MessageDigest md = MessageDigest.getInstance("SHA")
+        byte[] dataBytes = password.getBytes()
+        md.update(dataBytes)
+        byte[] digest = md.digest()
+        String digestedPassword = Arrays.toString(digest)
+
+        return digestedPassword
+    }
+
+    def checkPassword(String userId, String password){
+
+        def results = Users.createCriteria().get{
+            eq 'userid', userId
+            and{
+                eq 'password',password
+            }
+        }
+        return results
     }
 
     def userExists(String userId){
