@@ -4,11 +4,8 @@ class Users {
 
     String  userid
     String  password
-    Float   balance
+    BigDecimal   balance
     Map stockSymbols
-    String userName
-    String password
-    String fullName
 
 
     static constraints = {

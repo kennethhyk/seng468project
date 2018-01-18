@@ -102,7 +102,7 @@ environments:
             url: jdbc:mysql://localhost/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
             username : "root"
-            password : "root"
+            password : "toor"
 #            url: jdbc:mysql://localhost:3306/db1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
     test:
         dataSource:

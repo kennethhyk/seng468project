@@ -12,7 +12,11 @@ class DbService {
 
     }
 
-    def addAmount(String userId, Float amount){
+    def refreshDb(){
+        Users.executeUpdate('delete from Users')
+    }
+
+    def addAmount(String userId, String amount){
         def row = Users.createCriteria().get{
             eq'userid',userId
         }
@@ -21,12 +25,13 @@ class DbService {
             return 0
         }
 
-        row.balance += amount
+        BigDecimal bd_amount = new BigDecimal(amount)
+        row.balance = row.balance.add(bd_amount)
         row.save()
         return 1
     }
 
-    def removeAmount(String userId, Float amount){
+    def removeAmount(String userId, String amount){
         def row = Users.createCriteria().get{
             eq'userid',userId
         }
@@ -35,24 +40,30 @@ class DbService {
             return 0
         }
 
-        row.balance -= amount
+        BigDecimal bd_amount = new BigDecimal(amount)
+        row.balance = row.balance.subtract(bd_amount)
         row.save()
         return 1
     }
 
     //TODO: change balance type
-    def addNewUser(String userId, String password, Float balance){
+    def addNewUser(String userId, String password, String balance){
         if(userExists(userId)){
             return 0
         }else{
             password = digestPassword(password)
-            def new_user = new Users(userid:userId,password:password,balance:balance)
-            new_user.stockSymbols = Collections.emptyMap()
+
+            BigDecimal bd_balance = new BigDecimal(balance)
+
+            def new_user = new Users(userid:userId,password:password,balance:bd_balance)
+
+            new_user.stockSymbols = new HashMap<>()
             new_user.save()
             return 1
         }
     }
 
+    //deprecated
     def digestPassword(String password){
         MessageDigest md = MessageDigest.getInstance("SHA")
         byte[] dataBytes = password.getBytes()
@@ -63,6 +74,7 @@ class DbService {
         return digestedPassword
     }
 
+    //deprecated
     def checkPassword(String userId, String password){
 
         def results = Users.createCriteria().get{
@@ -74,6 +86,7 @@ class DbService {
         return results
     }
 
+    // can be deprecated
     def userExists(String userId){
         // get all rows in table
         def results = Users.createCriteria().get{
@@ -95,22 +108,20 @@ class DbService {
         if(!row) {
             return [0,0]
         }else{
-            return [1,row.balance]
+            return [1,row.balance.toString()]
         }
     }
 
     //TODO: typecheck
-    def updateUserInfo(String userId, Float balance, Integer shares){
+    def updateUserBalance(String userId, String balance){
         def row = Users.createCriteria().get{
             eq'userid',userId
         }
-
         if(!row){
             return 0
         }
-        println("original balance: " + row.balance)
-        row.balance = balance
-        row.shares  = shares
+
+        row.balance = new BigDecimal(balance)
         row.save()
 
         return 1
@@ -126,7 +137,7 @@ class DbService {
             return [0,0]
         }else{
             if(row.stockSymbols[symbol]){
-                return [1,row.stockSymbols[symbol]]
+                return [1,Integer.parseInt(row.stockSymbols[symbol])]
             }else{
                 return [1,0]
             }
