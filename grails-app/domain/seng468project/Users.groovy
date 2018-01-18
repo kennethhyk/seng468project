@@ -6,7 +6,9 @@ class Users {
     String  password
     Float   balance
     Map stockSymbols
-
+    String userName
+    String password
+    String fullName
 
 
     static constraints = {
