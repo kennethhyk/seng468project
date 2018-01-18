@@ -7,7 +7,6 @@ class Users {
     Float   balance
     Map stockSymbols
     String userName
-    String password
     String fullName
 
 

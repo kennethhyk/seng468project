@@ -2,9 +2,9 @@ package seng468project
 
 import java.sql.Timestamp
 
-class Transactions {
+class Transaction {
 
-    String      userId
+    Users       user
     String      action
     String      stockSymbol
     Float       price

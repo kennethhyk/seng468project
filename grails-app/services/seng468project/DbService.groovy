@@ -6,12 +6,6 @@ import java.security.*
 @Transactional
 class DbService {
 
-
-
-    def serviceMethod() {
-
-    }
-
     def addAmount(String userId, Float amount){
         def row = Users.createCriteria().get{
             eq'userid',userId
