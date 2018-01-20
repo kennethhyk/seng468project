@@ -1,7 +1,10 @@
 package seng468project
 
+import seng468project.beans.TransactionHistory
+
 class TestDbServiceController {
     def DbService
+    def AuditService
 
     def index() {
         dbService.refreshDb()
@@ -48,10 +51,10 @@ class TestDbServiceController {
             log.error('updateUserBalance')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '500'){
+        if(dbService.getUserBalance('ws_test')[1] == '500.00'){
             log.info('getUserBalance test3 PASSED!')
         }else {
-            log.error('getUserBalance expected: 500, got: ' + dbService.getUserBalance('ws_test')[1])
+            log.error('getUserBalance expected: 500.00 , got: ' + dbService.getUserBalance('ws_test')[1])
         }
 
         if(dbService.removeAmount('ws_test','100.01')){
@@ -95,5 +98,7 @@ class TestDbServiceController {
         }else{
             log.error('getUserStocks expected: 80, got: ' + dbService.getUserStocks('ws_test','ABC')[1] )
         }
+
+        auditService.audit()
     }
 }
