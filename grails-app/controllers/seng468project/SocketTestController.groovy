@@ -14,15 +14,18 @@ class SocketTestController {
             log.debug("started on 4448")
             server.echo()
         }
-    }
-
-    def stop() {
-        server.stop()
+        render ""
     }
 
     def client() {
         client.start("127.0.0.1", port)
         log.debug("client start sending message")
+        render ""
+    }
+
+    def serverStop() {
+        server.stop()
+        render ""
     }
 
     def clientStop() {
@@ -36,7 +39,7 @@ class SocketTestController {
         log.info(client.sendMessage("3"))
         log.info(client.sendMessage("4"))
         log.info(client.sendMessage("5"))
-        render "hi"
+        render ""
     }
 
 

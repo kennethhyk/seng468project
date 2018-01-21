@@ -7,10 +7,10 @@ class CSocket {
     private Socket clientSocket
     private PrintWriter outputStream
     private BufferedReader inputStream
+    private retriesAllowed = 10
 
     void start(String ip, int port) {
-        int retry = 10
-        for (i in (1..retry)) {
+        for (i in (1..retriesAllowed)) {
             try{
                 clientSocket = new Socket(ip, port)
                 outputStream = new PrintWriter(clientSocket.getOutputStream(), true)
@@ -19,11 +19,20 @@ class CSocket {
             }
             catch(e) {
                 System.out.println("Cannot start client, ip/port given is not open to connect, please check server, retrying connection...")
-                if(i == retry) {
+                if(i == retriesAllowed) {
                     System.out.println("Connection Timeout, stop retrying")
                 }
             }
             sleep(3000)
+        }
+    }
+
+    def echo() {
+        String inputLine
+        while (true) {
+            //inputLine recieved, do something
+            //reply
+            outputStream.println(inputStream.readLine())
         }
     }
 
