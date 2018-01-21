@@ -1,5 +1,6 @@
 package seng468project
 
+import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.TransactionHistory
 
 class TestDbServiceController {
@@ -51,10 +52,10 @@ class TestDbServiceController {
             log.error('updateUserBalance')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '500.00'){
+        if(dbService.getUserBalance('ws_test')[1] == '500'){
             log.info('getUserBalance test3 PASSED!')
         }else {
-            log.error('getUserBalance expected: 500.00 , got: ' + dbService.getUserBalance('ws_test')[1])
+            log.error('getUserBalance expected: 500, got: ' + dbService.getUserBalance('ws_test')[1])
         }
 
         if(dbService.removeAmount('ws_test','100.01')){
@@ -99,6 +100,8 @@ class TestDbServiceController {
             log.error('getUserStocks expected: 80, got: ' + dbService.getUserStocks('ws_test','ABC')[1] )
         }
 
-        auditService.audit()
+        QuoteServerTypeBean obj = new QuoteServerTypeBean(15147648000001,"server1",1,"123.48","ABD","test_user",15147648000002,"500.00")
+
+        auditService.auditQuoteServerRecord(obj)
     }
 }
