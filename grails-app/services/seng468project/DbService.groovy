@@ -108,7 +108,7 @@ class DbService {
         if(!row) {
             return [0,0]
         }else{
-            return [1,row.balance.toString()]
+            return [1,row.balance.setScale(2).toString()]
         }
     }
 
