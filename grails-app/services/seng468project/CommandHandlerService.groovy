@@ -7,6 +7,7 @@ import seng468project.beans.CommandBean
 class CommandHandlerService {
 
     def quoteService
+    def transactionService
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
         List<String> aCommand = command.split(",")
@@ -31,6 +32,10 @@ class CommandHandlerService {
                     res = quoteService.getQuote()
                     break
                 case "BUY":
+                    //mock data
+                    User user = new User(username:"david", balance: new BigDecimal("100000"), reservedBalance: new BigDecimal("0") ).save()
+                    //
+                    transactionService.buy(user, "abc", new BigDecimal("13.28"))
                     log.debug("this is the BUY function")
                     break
                 case "COMMIT_BUY":

@@ -7,7 +7,7 @@ import seng468project.helpers.CSocket
 @Transactional
 class QuoteService {
 
-    def auditService
+//    def auditService
 
 //    CSocket client = new CSocket()
 //    int port = 4447

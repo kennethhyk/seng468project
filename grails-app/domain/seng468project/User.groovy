@@ -6,6 +6,7 @@ class User {
     BigDecimal balance
     BigDecimal reservedBalance
     Map stockShareMap
+    static hasMany = [transactionList: Transaction]
 
     BigDecimal realBalance() {
         return this.balance - this.reservedBalance

@@ -4,7 +4,7 @@ import seng468project.enums.TransactionStatusEnum
 
 class Transaction {
 
-    User user
+    static hasOne = [user:User]
     TransactionStatusEnum status
     String stockSymbol
     BigDecimal quotedPrice

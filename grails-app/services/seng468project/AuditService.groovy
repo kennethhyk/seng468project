@@ -15,7 +15,7 @@ class AuditService {
 
     String header = "<?xml version=\"1.0\">\n\n "
     Path out_path = Paths.get("./logFile.xml")
-    BufferedWriter writer = Files.newBufferedWriter(out_path)
+    BufferedWriter writer = new BufferedWriter("./logFile.xml")
 
 
     def serviceMethod() {
@@ -27,7 +27,7 @@ class AuditService {
     }
 
     def auditUserCommand(UserCommandTypeBean obj){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter("./logFile.xml")
         writer.write(header)
         writer.write("<UserCommandType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
@@ -43,7 +43,7 @@ class AuditService {
     }
 
     def auditQuoteServerRecord(QuoteServerTypeBean obj){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter("./logFile.xml")
         writer.write(header)
         writer.write("<QuoteServerType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
@@ -59,7 +59,7 @@ class AuditService {
     }
 
     def auditAccountTransaction(AccountTransactionTypeBean obj){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter("./logFile.xml")
         writer.write(header)
         writer.write("<AccountTransactionType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
@@ -72,7 +72,7 @@ class AuditService {
     }
 
     def auditSystemEvents(UserCommandTypeBean obj){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter("./logFile.xml")
         writer.write(header)
         writer.write("<SystemEventType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
@@ -105,7 +105,7 @@ class AuditService {
     }
 
     def auditDebug(UserCommandTypeBean obj, String dbg_msg){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter("./logFile.xml")
         writer.write(header)
         writer.write("<DebugType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
