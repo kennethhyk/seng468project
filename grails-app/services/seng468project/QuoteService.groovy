@@ -12,7 +12,7 @@ class QuoteService {
 //    CSocket client = new CSocket()
 //    int port = 4447
 
-    def getQuote() {
+    def getQuote(User user, String symbol) {
         //todo:change to fit real quote response
 //        client.start("quoteserve.seng", port)
 //        String res = client.sendMessage("ABC, ZaaS")

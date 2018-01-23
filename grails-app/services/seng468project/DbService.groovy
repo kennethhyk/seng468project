@@ -169,4 +169,34 @@ class DbService {
 
         return 1
     }
+
+    def reserveMoney(String userId, BigDecimal reserveAmount){
+        def row = User.createCriteria().get{
+            eq'username',userId
+        }
+
+        if(!row){
+            return 0
+        }
+
+        row.balance -= reserveAmount
+        row.reservedBalance += reserveAmount
+        row.save()
+        return 1
+    }
+
+    def releaseReservedMoney(String userId, BigDecimal releaseAmount){
+        def row = User.createCriteria().get{
+            eq'username',userId
+        }
+
+        if(!row){
+            return 0
+        }
+
+        row.balance += releaseAmount
+        row.reservedBalance -= releaseAmount
+        row.save()
+        return 1
+    }
 }

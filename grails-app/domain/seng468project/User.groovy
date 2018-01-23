@@ -9,7 +9,7 @@ class User {
     static hasMany = [transactionList: Transaction]
 
     BigDecimal realBalance() {
-        return this.balance - this.reservedBalance
+        return this.balance.subtract(this.reservedBalance)
     }
 
     static constraints = {
