@@ -6,18 +6,12 @@ import java.security.*
 @Transactional
 class DbService {
 
-
-
-    def serviceMethod() {
-
-    }
-
     def refreshDb(){
-        Users.executeUpdate('delete from Users')
+        User.executeUpdate('delete from User')
     }
 
     def addAmount(String userId, String amount){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 
@@ -32,7 +26,7 @@ class DbService {
     }
 
     def removeAmount(String userId, String amount){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 
@@ -55,7 +49,7 @@ class DbService {
 
             BigDecimal bd_balance = new BigDecimal(balance)
 
-            def new_user = new Users(userid:userId,password:password,balance:bd_balance)
+            def new_user = new User(userid:userId,password:password,balance:bd_balance)
 
             new_user.stockSymbols = new HashMap<>()
             new_user.save()
@@ -77,7 +71,7 @@ class DbService {
     //deprecated
     def checkPassword(String userId, String password){
 
-        def results = Users.createCriteria().get{
+        def results = User.createCriteria().get{
             eq 'userid', userId
             and{
                 eq 'password',password
@@ -89,7 +83,7 @@ class DbService {
     // can be deprecated
     def userExists(String userId){
         // get all rows in table
-        def results = Users.createCriteria().get{
+        def results = User.createCriteria().get{
             eq 'userid', userId
         }
 
@@ -101,7 +95,7 @@ class DbService {
 
     // TODO: need to be updated once there are more than one company
     def getUserBalance(String userId){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 
@@ -114,7 +108,7 @@ class DbService {
 
     //TODO: typecheck
     def updateUserBalance(String userId, String balance){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
         if(!row){
@@ -129,7 +123,7 @@ class DbService {
 
 
     def getUserStocks(String userId, String symbol){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 
@@ -146,7 +140,7 @@ class DbService {
     }
 
     def addStockShares(String userId, String symbol, Integer shares){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 
@@ -164,7 +158,7 @@ class DbService {
     }
 
     def removeStockShares(String userId, String symbol, Integer shares){
-        def row = Users.createCriteria().get{
+        def row = User.createCriteria().get{
             eq'userid',userId
         }
 

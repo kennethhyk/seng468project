@@ -1,17 +1,13 @@
 package seng468project
 
-import java.sql.Timestamp
+import seng468project.enums.TransactionStatusEnum
 
 class Transaction {
 
-    Users       user
-    String      action
-    String      stockSymbol
-    Float       price
-    Integer     shares
-    Boolean     status
-    String      note
-    Timestamp   time
+    User user
+    TransactionStatusEnum status
+    String stockSymbol
+    BigDecimal quotedPrice
 
 
     static constraints = {
