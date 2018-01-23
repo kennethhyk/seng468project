@@ -22,7 +22,7 @@ class QuoteServerTypeBean {
     }
 
     @Override
-    String toString() {
+    public String toString() {
         return "QuoteServerTypeBean{" +
                 "timestamp=" + timestamp +
                 ", server='" + server + '\'' +
@@ -32,6 +32,6 @@ class QuoteServerTypeBean {
                 ", username='" + username + '\'' +
                 ", quoteServerTime=" + quoteServerTime +
                 ", cryptoKey='" + cryptoKey + '\'' +
-                '}'
+                '}';
     }
 }
