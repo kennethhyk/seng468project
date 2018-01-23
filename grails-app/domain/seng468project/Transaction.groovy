@@ -8,7 +8,13 @@ class Transaction {
     TransactionStatusEnum status
     String stockSymbol
     BigDecimal quotedPrice
+    BigDecimal amount
 
     static constraints = {
+    }
+
+    static mapping = {
+        dateCreated
+        lastUpdated
     }
 }
