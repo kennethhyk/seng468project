@@ -15,4 +15,16 @@ class User {
     static constraints = {
         username unique: true
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", version=" + version +
+                ", transactionList=" + transactionList +
+                ", username='" + username + '\'' +
+                ", balance=" + balance +
+                ", reservedBalance=" + reservedBalance +
+                '}'
+    }
 }

@@ -28,21 +28,16 @@ class CommandHandlerService {
                     log.debug("this is the ADD function")
                     break
                 case "QUOTE":
-                    log.debug("this is the QUOTE function")
                     res = quoteService.getQuote()
                     break
                 case "BUY":
-                    //mock data
-                    User user = new User(username:"david", balance: new BigDecimal("100000"), reservedBalance: new BigDecimal("0") ).save()
-                    //
-                    transactionService.buy(user, "abc", new BigDecimal("13.28"))
-                    log.debug("this is the BUY function")
+                    res = transactionService.buy(User.get(1), "abc", new BigDecimal("133.28"))
                     break
                 case "COMMIT_BUY":
-                    log.debug("this is the COMMIT_BUY function")
+                    res = transactionService.commitBuy(User.get(1))
                     break
                 case "CANCEL_BUY":
-                    log.debug("this is the CANCEL_BUY function")
+                    res = transactionService.cancelBuy(User.get(1))
                     break
                 case "SELL":
                     log.debug("this is the SELL function")

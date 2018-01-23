@@ -9,12 +9,23 @@ class Transaction {
     String stockSymbol
     BigDecimal quotedPrice
     BigDecimal amount
+    Long dateCreated
+    Long lastUpdated
 
     static constraints = {
     }
 
-    static mapping = {
-        dateCreated
-        lastUpdated
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id=" + id +
+                ", user=" + user +
+                ", status=" + status +
+                ", stockSymbol='" + stockSymbol + '\'' +
+                ", quotedPrice=" + quotedPrice +
+                ", amount=" + amount +
+                ", dateCreated=" + dateCreated +
+                ", lastUpdated=" + lastUpdated +
+                '}';
     }
 }

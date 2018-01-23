@@ -7,5 +7,6 @@ enum TransactionStatusEnum {
     BUY,
     COMMIT_BUY,
     SELL,
-    COMMIT_SELL
+    COMMIT_SELL,
+    CANCEL_BUY
 }
