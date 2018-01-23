@@ -12,7 +12,7 @@ class DbService {
 
     def addAmount(String userId, String amount){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row){
@@ -27,7 +27,7 @@ class DbService {
 
     def removeAmount(String userId, String amount){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row){
@@ -41,17 +41,16 @@ class DbService {
     }
 
     //TODO: change balance type
-    def addNewUser(String userId, String password, String balance){
+    def addNewUser(String userId, String balance){
         if(userExists(userId)){
             return 0
         }else{
-            password = digestPassword(password)
-
             BigDecimal bd_balance = new BigDecimal(balance)
+            BigDecimal zero       = new BigDecimal("0")
 
-            def new_user = new User(userid:userId,password:password,balance:bd_balance)
+            def new_user = new User(username:userId,balance:bd_balance,reservedBalance:zero)
 
-            new_user.stockSymbols = new HashMap<>()
+            new_user.stockShareMap = new HashMap<>()
             new_user.save()
             return 1
         }
@@ -72,7 +71,7 @@ class DbService {
     def checkPassword(String userId, String password){
 
         def results = User.createCriteria().get{
-            eq 'userid', userId
+            eq 'username', userId
             and{
                 eq 'password',password
             }
@@ -84,7 +83,7 @@ class DbService {
     def userExists(String userId){
         // get all rows in table
         def results = User.createCriteria().get{
-            eq 'userid', userId
+            eq 'username', userId
         }
 
         if(results){
@@ -96,7 +95,7 @@ class DbService {
     // TODO: need to be updated once there are more than one company
     def getUserBalance(String userId){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row) {
@@ -109,7 +108,7 @@ class DbService {
     //TODO: typecheck
     def updateUserBalance(String userId, String balance){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
         if(!row){
             return 0
@@ -124,14 +123,14 @@ class DbService {
 
     def getUserStocks(String userId, String symbol){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row) {
             return [0,0]
         }else{
-            if(row.stockSymbols[symbol]){
-                return [1,Integer.parseInt(row.stockSymbols[symbol])]
+            if(row.stockShareMap[symbol]){
+                return [1,Integer.parseInt(row.stockShareMap[symbol])]
             }else{
                 return [1,0]
             }
@@ -141,7 +140,7 @@ class DbService {
 
     def addStockShares(String userId, String symbol, Integer shares){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row){
@@ -149,24 +148,24 @@ class DbService {
         }
 
         // if not in list, add it in
-        if(!row.stockSymbols[symbol]){
-            row.stockSymbols[symbol] = Integer.toString(shares)
+        if(!row.stockShareMap[symbol]){
+            row.stockShareMap[symbol] = Integer.toString(shares)
         }else{
-            row.stockSymbols[symbol] = Integer.toString(row.stockSymbols[symbol].toInteger() + shares)
+            row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() + shares)
         }
         return 1
     }
 
     def removeStockShares(String userId, String symbol, Integer shares){
         def row = User.createCriteria().get{
-            eq'userid',userId
+            eq'username',userId
         }
 
         if(!row){
             return 0
         }
 
-        row.stockSymbols[symbol] = Integer.toString(row.stockSymbols[symbol].toInteger() - shares)
+        row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() - shares)
 
         return 1
     }

@@ -10,13 +10,13 @@ class TestDbServiceController {
     def index() {
         dbService.refreshDb()
 
-        if(dbService.addNewUser('ws_test','pswd','999.00')){
+        if(dbService.addNewUser('ws_test','999.00')){
             log.info('addNewUser test1 PASSED!')
         }else{
             log.error("addNewUser test1")
         }
 
-        if(dbService.addNewUser('ws_test','d','99.00')){
+        if(dbService.addNewUser('ws_test','99.00')){
             log.error("addNewUser test2")
         }else{
             log.info('addNewUser test2 PASSED!')
@@ -52,10 +52,10 @@ class TestDbServiceController {
             log.error('updateUserBalance')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '500'){
+        if(dbService.getUserBalance('ws_test')[1] == '500.00'){
             log.info('getUserBalance test3 PASSED!')
         }else {
-            log.error('getUserBalance expected: 500, got: ' + dbService.getUserBalance('ws_test')[1])
+            log.error('getUserBalance expected: 500.00, got: ' + dbService.getUserBalance('ws_test')[1])
         }
 
         if(dbService.removeAmount('ws_test','100.01')){
