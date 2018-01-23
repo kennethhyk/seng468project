@@ -2,9 +2,6 @@ package seng468project
 
 import grails.transaction.Transactional
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import seng468project.beans.QuoteServerTypeBean
 
 @Transactional
@@ -12,20 +9,14 @@ class AuditService {
 
 
     String header = "<?xml version=\"1.0\">\n\n "
-    Path out_path = Paths.get("./logFile.xml")
-    BufferedWriter writer = Files.newBufferedWriter(out_path)
-
-
-    def serviceMethod() {
-
-    }
+    BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
 
     def audit(){
 
     }
 
     def auditUserCommand(Long timestamp, String server, Integer transactionNum, String command, String username, String stockSymbol, String filename,String funds){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
         writer.write("<UserCommandType>\n" +
                 "   <timestamp>" + timestamp+ "</timestamp>\n" +
@@ -41,7 +32,7 @@ class AuditService {
     }
 
     def auditQuoteServerRecord(QuoteServerTypeBean obj){
-        BufferedWriter writer = Files.newBufferedWriter(out_path)
+        BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
         writer.write("<QuoteServerType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +

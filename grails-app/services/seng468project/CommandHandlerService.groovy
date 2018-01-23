@@ -6,13 +6,16 @@ import seng468project.beans.CommandBean
 @Transactional
 class CommandHandlerService {
 
+    def quoteService
+
     CommandBean parseCommandAndCreateCommandBean(String command) {
         List<String> aCommand = command.split(",")
         CommandBean commandBean = new CommandBean(aCommand)
         return commandBean
     }
 
-    def commandHandling(String command) {
+    String commandHandling(String command) {
+        String res = ""
         CommandBean commandBean = parseCommandAndCreateCommandBean(command)
         if(commandBean.command == null) {
             log.info("Command $command is not recognized")
@@ -25,6 +28,7 @@ class CommandHandlerService {
                     break
                 case "QUOTE":
                     log.debug("this is the QUOTE function")
+                    res = quoteService.getQuote()
                     break
                 case "BUY":
                     log.debug("this is the BUY function")
@@ -70,5 +74,6 @@ class CommandHandlerService {
                     break
             }
         }
+        return res
     }
 }

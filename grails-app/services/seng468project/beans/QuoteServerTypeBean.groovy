@@ -20,4 +20,18 @@ class QuoteServerTypeBean {
         this.quoteServerTime = quoteServerTime
         this.cryptoKey = cryptoKey
     }
+
+    @Override
+    String toString() {
+        return "QuoteServerTypeBean{" +
+                "timestamp=" + timestamp +
+                ", server='" + server + '\'' +
+                ", transactionNum=" + transactionNum +
+                ", price='" + price + '\'' +
+                ", stockSymbol='" + stockSymbol + '\'' +
+                ", username='" + username + '\'' +
+                ", quoteServerTime=" + quoteServerTime +
+                ", cryptoKey='" + cryptoKey + '\'' +
+                '}'
+    }
 }
