@@ -13,6 +13,7 @@ class QuoteService {
 //    int port = 4447
 
     def getQuote() {
+        //todo:change to fit real quote response
 //        client.start("quoteserve.seng", port)
 //        String res = client.sendMessage("ABC, ZaaS")
 //        List<String> resList = res.split(",")

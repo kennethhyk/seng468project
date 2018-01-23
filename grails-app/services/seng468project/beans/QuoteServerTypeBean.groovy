@@ -4,7 +4,7 @@ class QuoteServerTypeBean {
     Long    timestamp
     String  server
     Integer transactionNum
-    String  price
+    BigDecimal  price
     String  stockSymbol
     String  username
     Long    quoteServerTime
@@ -14,7 +14,8 @@ class QuoteServerTypeBean {
         this.timestamp = timestamp
         this.server = server
         this.transactionNum = transactionNum
-        this.price = price
+        BigDecimal bigDecimalPrice= new BigDecimal(price)
+        this.price = bigDecimalPrice
         this.stockSymbol = stockSymbol
         this.username = username
         this.quoteServerTime = quoteServerTime
