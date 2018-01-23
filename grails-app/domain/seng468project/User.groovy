@@ -7,6 +7,9 @@ class User {
     BigDecimal reservedBalance
     Map stockShareMap
 
+    BigDecimal realBalance() {
+        return this.balance - this.reservedBalance
+    }
 
     static constraints = {
         username unique: true
