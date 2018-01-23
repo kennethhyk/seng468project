@@ -9,5 +9,6 @@ class User {
 
 
     static constraints = {
+        username unique: true
     }
 }
