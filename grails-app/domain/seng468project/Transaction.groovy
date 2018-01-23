@@ -9,7 +9,6 @@ class Transaction {
     String stockSymbol
     BigDecimal quotedPrice
 
-
     static constraints = {
     }
 }
