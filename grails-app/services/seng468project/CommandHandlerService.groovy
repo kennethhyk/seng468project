@@ -28,7 +28,7 @@ class CommandHandlerService {
                     log.debug("this is the ADD function")
                     break
                 case "QUOTE":
-                    res = quoteService.getQuote()
+                    res = quoteService.getQuote(User.get(1), "abc")
                     break
                 case "BUY":
                     res = transactionService.buy(User.get(1), "abc", new BigDecimal("133.28"))

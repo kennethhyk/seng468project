@@ -20,7 +20,7 @@ class TransactionService {
     }
 
     String buy(User user, String stockSymbol, BigDecimal amountPrice) {
-        QuoteServerTypeBean quote = quoteService.getQuote() //todo: get quote using stock symbol
+        QuoteServerTypeBean quote = quoteService.getQuote(User.get(1), "abc") //todo: get quote using stock symbol
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             log.info("you don't have enough money")
             return "you don't have enough money"
