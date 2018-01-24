@@ -1,7 +1,6 @@
 package seng468project
 
 import grails.transaction.Transactional
-import grails.gorm.DetachedCriteria
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.enums.TransactionStatusEnum
 import seng468project.enums.TriggerStatusEnum
