@@ -40,13 +40,13 @@ class CommandHandlerService {
                     res = transactionService.cancelBuy(User.get(1))
                     break
                 case "SELL":
-                    log.debug("this is the SELL function")
+                    res = transactionService.sell(User.get(1), "abc", new BigDecimal("133.28"))
                     break
                 case "COMMIT_SELL":
-                    log.debug("this is the COMMIT_SELL function")
+                    res = transactionService.commitSell(User.get(1))
                     break
                 case "CANCEL_SELL":
-                    log.debug("this is the CANCEL_SELL function")
+                    res = transactionService.cancelSell(User.get(1))
                     break
                 case "SET_BUY_AMOUNT":
                     log.debug("this is the SET_BUY_AMOUNT function")

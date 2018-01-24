@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
+import grails.gorm.DetachedCriteria
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.enums.TransactionStatusEnum
 import seng468project.enums.TriggerStatusEnum
@@ -20,7 +21,7 @@ class TransactionService {
     }
 
     String buy(User user, String stockSymbol, BigDecimal amountPrice) {
-        QuoteServerTypeBean quote = quoteService.getQuote(User.get(1), "abc") //todo: get quote using stock symbol
+        QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol)
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             log.info("you don't have enough money")
             return "you don't have enough money"
@@ -37,21 +38,19 @@ class TransactionService {
     }
 
     String commitBuy(User user) {
-        Date date = new Date()
-        Long sixtySecondsAgo = new Timestamp(date.getTime()).getTime() - 60
-        def test = Transaction.createCriteria().get {
+        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
                 max("dateCreated")
+                gt("dateCreated", sixtySecondsAgo)
                 eq('status', TransactionStatusEnum.BUY)
                 eq('user', user)
             }
         }
-
         def transaction = Transaction.createCriteria().get {
-            eq('dateCreated', test )
+            eq('dateCreated', lastestTransactionTime )
         } as Transaction
 
-        log.debug(transaction.dateCreated as String)
         if(!transaction) {
             log.info("No active buy was found for user $user.username")
             return "No active buy was found for user $user.username"
@@ -83,17 +82,95 @@ class TransactionService {
     }
 
     String cancelBuy(User user) {
-        def test = Transaction.createCriteria().get {
+        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
                 max("dateCreated")
+                gt("dateCreated", sixtySecondsAgo)
                 eq('status', TransactionStatusEnum.BUY)
                 eq('user', user)
             }
         }
         def transaction = Transaction.createCriteria().get {
-            eq('dateCreated', test )
+            eq('dateCreated', lastestTransactionTime )
         } as Transaction
-        transaction.status = TransactionStatusEnum.CANCEL_BUY
+        if(!transaction) {
+            return "You dont have an active trasaction"
+        }
+        transaction.delete()
+        return "Canceled successfully"
+    }
+
+    String sell(User user, String stockSymbol, BigDecimal amountShare) {
+        QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol)
+        if((user.stockShareMap[stockSymbol] as Integer) < amountShare) {
+            log.info("you don't have enough share")
+            return "you don't have enough share"
+        }
+        Transaction transaction = new Transaction(
+                user: user,
+                status: TransactionStatusEnum.SELL,
+                stockSymbol: stockSymbol,
+                quotedPrice: quote.price,
+                amount: amountShare
+        ).save()
+        log.info("User $user.username requested to sell $amountShare\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
+        return "User $user.username requested to sell $amountShare\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
+    }
+
+    String commitSell(User user) {
+        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        def lastestTransactionTime = Transaction.createCriteria().get {
+            projections {
+                max("dateCreated")
+                gt("dateCreated", sixtySecondsAgo)
+                eq('status', TransactionStatusEnum.SELL)
+                eq('user', user)
+            }
+        }
+        def transaction = Transaction.createCriteria().get {
+            eq('dateCreated', lastestTransactionTime )
+        } as Transaction
+
+        if(!transaction) {
+            log.info("No active sell was found for user $user.username")
+            return "No active sell was found for user $user.username"
+        }
+        if((user.stockShareMap[transaction.stockSymbol] as Integer) < transaction.amount) {
+            log.info("you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
+            return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
+        }
+
+        BigDecimal sellPriceAmount = transaction.amount.multiply(transaction.quotedPrice, new MathContext(2))
+        user.stockShareMap[transaction.stockSymbol] -= transaction.amount
+        user.balance = user.balance + sellPriceAmount
+        user.save()
+        transaction.status = TransactionStatusEnum.COMMIT_SELL
+        transaction.save()
+
+        String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
+        log.info(res)
+        return res
+    }
+
+    String cancelSell(User user) {
+        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        def lastestTransactionTime = Transaction.createCriteria().get {
+            projections {
+                max("dateCreated")
+                gt("dateCreated", sixtySecondsAgo)
+                eq('status', TransactionStatusEnum.SELL)
+                eq('user', user)
+            }
+        }
+        def transaction = Transaction.createCriteria().get {
+            eq('dateCreated', lastestTransactionTime )
+        } as Transaction
+        if(!transaction) {
+            return "You dont have an active transaction"
+        }
+        transaction.delete()
+        return "Canceled successfully"
     }
 
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount){
