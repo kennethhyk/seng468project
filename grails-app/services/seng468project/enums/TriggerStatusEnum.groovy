@@ -5,7 +5,9 @@ package seng468project.enums
  */
 enum TriggerStatusEnum {
     SET_BUY,
-    SET_TRIGGER,
+    SET_BUY_TRIGGER,
+    SET_SELL,
+    SET_SELL_TRIGGER,
     DONE,
     CANCELED
 }
