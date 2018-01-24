@@ -5,6 +5,8 @@ import seng468project.beans.QuoteServerTypeBean
 import seng468project.enums.TransactionStatusEnum
 import seng468project.enums.TriggerStatusEnum
 
+import java.math.RoundingMode
+
 import java.math.MathContext
 import java.sql.Timestamp
 
@@ -109,7 +111,8 @@ class TransactionService {
             // TODO: verify can do this
             eq'user',user
             eq 'stockSymbol',stockSymbol
-        })
+            eq 'status', TriggerStatusEnum.SET_BUY || TriggerStatusEnum.SET_BUY_TRIGGER
+        }) return "Trigger for $stockSymbol already exists"
 
         // TODO: relate trigger table to user table
         Trigger new_trig = new Trigger(
@@ -117,6 +120,7 @@ class TransactionService {
                 stockSymbol: stockSymbol,
                 triggerPrice: null,
                 reservedBalance: amount,
+                reservedShares: null,
                 status:TriggerStatusEnum.SET_BUY
         ).save()
 
@@ -127,6 +131,7 @@ class TransactionService {
         Trigger record = Trigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_BUY || TriggerStatusEnum.SET_BUY_TRIGGER
         }
         if(!record) return "no trigger record found"
 
@@ -141,16 +146,83 @@ class TransactionService {
             // TODO: verify can do this
             eq'user',user
             eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_BUY
         }
 
         if(!Trigger) return "no record found, please set buy amount first"
 
-        record.status = TriggerStatusEnum.SET_TRIGGER
+        record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
         record.save()
 
     }
 
     //TODO: add function to handle buy trigger
+
+
+    String setSellAmount(User user, String stockSymbol, BigDecimal amount){
+
+        // checking one use can only set one trigger of a stocksymol,
+        // this can prevent cancelling wrong triggers
+        if(Trigger.createCriteria().get{
+            // TODO: verify can do this
+            eq'user',user
+            eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_SELL || TriggerStatusEnum.SET_SELL_TRIGGER
+        }) return "Trigger for $stockSymbol already exists"
+
+        // TODO: relate trigger table to user table
+        Trigger new_trig = new Trigger(
+                user: user,
+                stockSymbol: stockSymbol,
+                triggerPrice: null,
+                reservedBalance: null,
+                reservedShares: null,
+                sellingAmount: amount,
+                status:TriggerStatusEnum.SET_SELL
+        ).save()
+
+        return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
+    }
+
+    String setSellTrigger(User user, String stockSymbol, BigDecimal amount){
+        Trigger record = Trigger.createCriteria().get{
+            // TODO: verify can do this
+            eq'user',user
+            eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_SELL
+        }
+
+        if(!Trigger) return "no record found, please set buy amount first"
+
+        BigDecimal sharesCanSell = record.sellingAmount/amount
+        BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
+
+        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell) return "not enough shares to sell"
+
+        //reserve shares
+        //TODO: need to implement another map for reservedshares
+        dbService.removeStockShares(user.username,stockSymbol,sharesToSell)
+
+        record.reservedShares = sharesToSell
+        record.triggerPrice = amount
+        record.status = TriggerStatusEnum.SET_SELL_TRIGGER
+        record.save()
+
+    }
+
+    String cancelSetSell(User user,String stockSymbol){
+        Trigger record = Trigger.createCriteria().get{
+            eq'user',user
+            eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_SELL || TriggerStatusEnum.SET_SELL_TRIGGER
+        }
+        if(!record) return "no trigger record found"
+
+        dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
+
+        record.delete()
+        return "set_sell canceled"
+    }
 
 }
