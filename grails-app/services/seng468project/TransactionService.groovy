@@ -174,43 +174,76 @@ class TransactionService {
         return "Canceled successfully"
     }
 
+    /***************************************************************
+        TRIGGER SECTION
+     **************************************************************/
+
+    Boolean triggerExists(User user, String stockSymbol, String type){
+        if(type.equals("BUY") ){
+            if(TransactionTrigger.createCriteria().get{
+                and {
+                    eq'user',user
+                    eq 'stockSymbol',stockSymbol
+                    or {
+                        eq 'status', TriggerStatusEnum.SET_BUY
+                        eq 'status', TriggerStatusEnum.SET_BUY_TRIGGER
+                    }
+                }
+            }) return true
+        }else if(type.equals("SELL")){
+            if(TransactionTrigger.createCriteria().get{
+                eq'user',user
+                eq 'stockSymbol',stockSymbol
+                or {
+                    eq 'status', TriggerStatusEnum.SET_SELL
+                    eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+                }
+            }) return true
+        }
+        return false
+    }
+
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount){
+        // if trigger already exitst, don't proceed any further
+        if(triggerExists(user,stockSymbol,"BUY")) return "TransactionTrigger for $stockSymbol already exists"
+        // get quote
         QuoteServerTypeBean quote = quoteService.getQuote(user,stockSymbol)
+        // check have enough money
         if(!hasSufficientBalance(user.realBalance(),amount,quote.price)) return "you son't have enough money"
-
         // TODO check if can access db through user.
-        if(!dbService.reserveMoney(user, amount))return "user doesn't exist"
-
-        // checking one use can only set one trigger of a stocksymol,
-        // this can prevent cancelling wrong triggers
-        if(Trigger.createCriteria().get{
-            // TODO: verify can do this
-            eq'user',user
-            eq 'stockSymbol',stockSymbol
-            eq 'status', TriggerStatusEnum.SET_BUY || TriggerStatusEnum.SET_BUY_TRIGGER
-        }) return "Trigger for $stockSymbol already exists"
+        // reserve money
+        if(!dbService.reserveMoney(user.username, amount))return "user doesn't exist"
 
         // TODO: relate trigger table to user table
-        Trigger new_trig = new Trigger(
-                user: user,
-                stockSymbol: stockSymbol,
-                triggerPrice: null,
-                reservedBalance: amount,
-                reservedShares: null,
-                status:TriggerStatusEnum.SET_BUY
+        // create new trigger record in db
+        TransactionTrigger new_trig = new TransactionTrigger(
+                user,
+                stockSymbol,
+                new BigDecimal("-1.00"),
+                new BigDecimal("0.00"),
+                amount,
+                0,
+                TriggerStatusEnum.SET_BUY
         ).save()
 
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
     String cancelSetBuy(User user,String stockSymbol){
-        Trigger record = Trigger.createCriteria().get{
-            eq'user',user
-            eq 'stockSymbol',stockSymbol
-            eq 'status', TriggerStatusEnum.SET_BUY || TriggerStatusEnum.SET_BUY_TRIGGER
-        }
+        // find the trigger
+        def record = TransactionTrigger.createCriteria().get{
+            and {
+                eq'user',user
+                eq 'stockSymbol',stockSymbol
+                or {
+                    eq 'status', TriggerStatusEnum.SET_BUY
+                    eq 'status', TriggerStatusEnum.SET_BUY_TRIGGER
+                }
+            }
+        } as TransactionTrigger
         if(!record) return "no trigger record found"
 
+        // release money
         if(!dbService.releaseReservedMoney(user.username,record.reservedBalance))return "user not found"
 
         record.delete()
@@ -218,62 +251,53 @@ class TransactionService {
     }
 
     String setBuyTrigger(User user, String stockSymbol, BigDecimal amount){
-        Trigger record = Trigger.createCriteria().get{
-            // TODO: verify can do this
+        def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
             eq 'status', TriggerStatusEnum.SET_BUY
-        }
+        } as TransactionTrigger
 
-        if(!Trigger) return "no record found, please set buy amount first"
+        if(!record) return "no record found, please set buy amount first"
 
         record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
         record.save()
-
     }
 
     //TODO: add function to handle buy trigger
-
-
     String setSellAmount(User user, String stockSymbol, BigDecimal amount){
 
-        // checking one use can only set one trigger of a stocksymol,
-        // this can prevent cancelling wrong triggers
-        if(Trigger.createCriteria().get{
-            // TODO: verify can do this
-            eq'user',user
-            eq 'stockSymbol',stockSymbol
-            eq 'status', TriggerStatusEnum.SET_SELL || TriggerStatusEnum.SET_SELL_TRIGGER
-        }) return "Trigger for $stockSymbol already exists"
+        // check no other triggers for the same symbol
+        if(triggerExists(user,stockSymbol,"SELL")) return "TransactionTrigger for $stockSymbol already exists"
 
         // TODO: relate trigger table to user table
-        Trigger new_trig = new Trigger(
-                user: user,
-                stockSymbol: stockSymbol,
-                triggerPrice: null,
-                reservedBalance: null,
-                reservedShares: null,
-                sellingAmount: amount,
-                status:TriggerStatusEnum.SET_SELL
+        // create new trigger to table
+        TransactionTrigger new_trig = new TransactionTrigger(
+                user,
+                stockSymbol,
+                new BigDecimal("-1.00"),
+                new BigDecimal("0.00"),
+                amount,
+                0,
+                TriggerStatusEnum.SET_SELL
         ).save()
 
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
     String setSellTrigger(User user, String stockSymbol, BigDecimal amount){
-        Trigger record = Trigger.createCriteria().get{
-            // TODO: verify can do this
+        def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
             eq 'status', TriggerStatusEnum.SET_SELL
-        }
+        } as TransactionTrigger
 
-        if(!Trigger) return "no record found, please set buy amount first"
+        if(!TransactionTrigger) return "no record found, please set buy amount first"
 
-        BigDecimal sharesCanSell = record.sellingAmount/amount
+        BigDecimal sharesCanSell = record.buySellAmount/amount
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
+        // check user has sufficient shares
         if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell) return "not enough shares to sell"
 
         //reserve shares
@@ -288,13 +312,17 @@ class TransactionService {
     }
 
     String cancelSetSell(User user,String stockSymbol){
-        Trigger record = Trigger.createCriteria().get{
+        TransactionTrigger record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
-            eq 'status', TriggerStatusEnum.SET_SELL || TriggerStatusEnum.SET_SELL_TRIGGER
+            or {
+                eq 'status', TriggerStatusEnum.SET_SELL
+                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+            }
         }
         if(!record) return "no trigger record found"
 
+        // release shares
         dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
 
         record.delete()

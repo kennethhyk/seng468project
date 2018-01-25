@@ -7,13 +7,15 @@ import java.security.*
 class DbService {
 
     def refreshDb(){
+        TransactionTrigger.executeUpdate('delete from TransactionTrigger')
         User.executeUpdate('delete from User')
+
     }
 
     def addAmount(String userId, String amount){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0
@@ -25,10 +27,16 @@ class DbService {
         return 1
     }
 
+    // TODO: change dbservice to use user isntead of id? talk to Kenneth
+    def addAmount(User user, String amount){
+        user.balance += new BigDecimal(amount)
+        user.save()
+    }
+
     def removeAmount(String userId, String amount){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0
@@ -84,7 +92,7 @@ class DbService {
         // get all rows in table
         def results = User.createCriteria().get{
             eq 'username', userId
-        }
+        } as User
 
         if(results){
             return true
@@ -96,7 +104,7 @@ class DbService {
     def getUserBalance(String userId){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row) {
             return [0,0]
@@ -109,7 +117,7 @@ class DbService {
     def updateUserBalance(String userId, String balance){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
         if(!row){
             return 0
         }
@@ -124,7 +132,7 @@ class DbService {
     def getUserStocks(String userId, String symbol){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row) {
             return [0,0]
@@ -141,7 +149,7 @@ class DbService {
     def addStockShares(String userId, String symbol, Integer shares){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0
@@ -159,7 +167,7 @@ class DbService {
     def removeStockShares(String userId, String symbol, Integer shares){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0
@@ -173,7 +181,7 @@ class DbService {
     def reserveMoney(String userId, BigDecimal reserveAmount){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0
@@ -188,7 +196,7 @@ class DbService {
     def releaseReservedMoney(String userId, BigDecimal releaseAmount){
         def row = User.createCriteria().get{
             eq'username',userId
-        }
+        } as User
 
         if(!row){
             return 0

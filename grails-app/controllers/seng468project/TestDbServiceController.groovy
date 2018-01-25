@@ -1,7 +1,7 @@
 package seng468project
 
 import seng468project.beans.QuoteServerTypeBean
-import seng468project.beans.TransactionHistory
+import seng468project.enums.TriggerStatusEnum
 
 class TestDbServiceController {
     def DbService
@@ -103,5 +103,32 @@ class TestDbServiceController {
         QuoteServerTypeBean obj = new QuoteServerTypeBean(15147648000001,"server1",1,"123.48","ABD","test_user",15147648000002,"500.00")
 
         auditService.auditQuoteServerRecord(obj)
+
+        User user = User.createCriteria().get{
+            eq'username','ws_test'
+        }
+
+        log.info(user.toString())
+
+        TransactionTrigger new_trig = new TransactionTrigger(
+                user,
+                'ABC',
+                new BigDecimal("150.28"),
+                new BigDecimal("0"),
+                new BigDecimal("0"),
+                0,
+                TriggerStatusEnum.SET_SELL
+        ).save()
+
+
+
+        def record = TransactionTrigger.createCriteria().get{
+            eq('user',user)
+            eq ('stockSymbol','ABC')
+            eq ('status', TriggerStatusEnum.SET_SELL)
+        } as TransactionTrigger
+
+        println(record.getClass())
+        log.info(record.toString())
     }
 }
