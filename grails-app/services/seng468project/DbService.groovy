@@ -138,7 +138,7 @@ class DbService {
             return [0,0]
         }else{
             if(row.stockShareMap[symbol]){
-                return [1,Integer.parseInt(row.stockShareMap[symbol])]
+                return [1,Integer.parseInt(row.stockShareMap[symbol] as String)]
             }else{
                 return [1,0]
             }
@@ -161,6 +161,7 @@ class DbService {
         }else{
             row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() + shares)
         }
+        row.save()
         return 1
     }
 
@@ -175,6 +176,7 @@ class DbService {
 
         row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() - shares)
 
+        row.save()
         return 1
     }
 

@@ -102,9 +102,13 @@ class TransactionService {
         return "Canceled successfully"
     }
 
-    String sell(User user, String stockSymbol, BigDecimal amountShare) {
+    String sell(User user, String stockSymbol, BigDecimal sellPriceAmount) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol)
-        if((user.stockShareMap[stockSymbol] as Integer) < amountShare) {
+
+        BigDecimal sharesCanSell = sellPriceAmount/quote.price
+        BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
+
+        if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
             log.info("you don't have enough share")
             return "you don't have enough share"
         }
@@ -113,10 +117,10 @@ class TransactionService {
                 status: TransactionStatusEnum.SELL,
                 stockSymbol: stockSymbol,
                 quotedPrice: quote.price,
-                amount: amountShare
+                amount: sharesToSell
         ).save()
-        log.info("User $user.username requested to sell $amountShare\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
-        return "User $user.username requested to sell $amountShare\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
+        log.info("User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
+        return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
 
     String commitSell(User user) {
@@ -142,6 +146,7 @@ class TransactionService {
             return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
         }
 
+        // TODO: use DbServices for modifying db records later
         BigDecimal sellPriceAmount = transaction.amount.multiply(transaction.quotedPrice, new MathContext(2))
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
         user.balance = user.balance + sellPriceAmount
