@@ -220,7 +220,7 @@ class TransactionService {
                 user,
                 stockSymbol,
                 new BigDecimal("-1.00"),
-                new BigDecimal("0.00"),
+                amount,
                 amount,
                 0,
                 TriggerStatusEnum.SET_BUY
@@ -262,6 +262,7 @@ class TransactionService {
         record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
         record.save()
+        return "buy trigger set"
     }
 
     //TODO: add function to handle buy trigger
@@ -292,7 +293,7 @@ class TransactionService {
             eq 'status', TriggerStatusEnum.SET_SELL
         } as TransactionTrigger
 
-        if(!TransactionTrigger) return "no record found, please set buy amount first"
+        if(!record) return "no record found, please set sell amount first"
 
         BigDecimal sharesCanSell = record.buySellAmount/amount
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
@@ -302,13 +303,14 @@ class TransactionService {
 
         //reserve shares
         //TODO: need to implement another map for reservedshares
-        dbService.removeStockShares(user.username,stockSymbol,sharesToSell)
+        dbService.removeStockShares(user.username,stockSymbol,sharesToSell.intValueExact())
 
         record.reservedShares = sharesToSell
         record.triggerPrice = amount
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
         record.save()
 
+        return "sell trigger set"
     }
 
     String cancelSetSell(User user,String stockSymbol){

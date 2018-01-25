@@ -202,8 +202,8 @@ class DbService {
             return 0
         }
 
-        row.balance += releaseAmount
-        row.reservedBalance -= releaseAmount
+        row.balance = row.balance.add(releaseAmount)
+        row.reservedBalance = row.reservedBalance.subtract(releaseAmount)
         row.save()
         return 1
     }
