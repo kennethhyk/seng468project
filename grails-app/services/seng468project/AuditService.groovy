@@ -18,7 +18,7 @@ class AuditService {
             "\n "
     String footer = "\n</log>"
 
-    def dumpLog(String username=null, String filename){
+    String dumpLog(String username=null, String filename){
         def records
         if(username){
             def user = User.createCriteria().get{
@@ -39,6 +39,7 @@ class AuditService {
         }
         writer.write(footer)
         writer.close()
+        return "done"
     }
 
     def auditUserCommand(UserCommandTypeBean obj){

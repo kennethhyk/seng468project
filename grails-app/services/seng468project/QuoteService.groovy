@@ -4,6 +4,8 @@ import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 
+import java.sql.Timestamp
+
 @Transactional
 class QuoteService {
 
@@ -12,7 +14,7 @@ class QuoteService {
     CSocket client = new CSocket()
     String ipaddress = "192.168.1.152"
     int port = 4445
-    Boolean test=true
+    Boolean test = false
 
     def getQuote(User user, String symbol) {
         //todo:change to fit real quote response
