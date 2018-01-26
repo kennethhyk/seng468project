@@ -2,6 +2,7 @@ package seng468project
 
 import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
+import seng468project.beans.UserCommandTypeBean
 import seng468project.enums.TransactionStatusEnum
 import seng468project.enums.TriggerStatusEnum
 
@@ -14,6 +15,7 @@ import java.sql.Timestamp
 class TransactionService {
     def quoteService
     def dbService
+    def auditService
 
     Boolean hasSufficientBalance(BigDecimal userBalance, BigDecimal buyAmount, BigDecimal price){
         if(userBalance.compareTo(buyAmount) == -1) return false
@@ -34,6 +36,23 @@ class TransactionService {
                 quotedPrice: quote.price,
                 amount: amountPrice
         ).save()
+
+        // object for XML block
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                quote.server,
+                quote.transactionNum,
+                "BUY",
+                user.username,
+                stockSymbol,
+                "",
+                amountPrice.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         log.info("User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm")
         return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
@@ -77,6 +96,25 @@ class TransactionService {
         transaction.status = TransactionStatusEnum.COMMIT_BUY
         transaction.save()
 
+
+        // object for XML block
+        // TODO: generate transactionNumber
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "COMMIT_BUY",
+                user.username,
+                transaction.stockSymbol,
+                "",
+                transaction.amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
+
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         log.info(res)
         return res
@@ -98,6 +136,22 @@ class TransactionService {
         if(!transaction) {
             return "You dont have an active trasaction"
         }
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "CANCEL_BUY",
+                user.username,
+                transaction.stockSymbol,
+                "",
+                transaction.amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         transaction.delete()
         return "Canceled successfully"
     }
@@ -119,6 +173,22 @@ class TransactionService {
                 quotedPrice: quote.price,
                 amount: sharesToSell
         ).save()
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                quote.server,
+                1,
+                "SELL",
+                user.username,
+                transaction.stockSymbol,
+                "",
+                sellPriceAmount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         log.info("User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
         return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
@@ -154,6 +224,22 @@ class TransactionService {
         transaction.status = TransactionStatusEnum.COMMIT_SELL
         transaction.save()
 
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "COMMIT_SELL",
+                user.username,
+                transaction.stockSymbol,
+                "",
+                sellPriceAmount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
+
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         log.info(res)
         return res
@@ -175,6 +261,23 @@ class TransactionService {
         if(!transaction) {
             return "You dont have an active transaction"
         }
+
+        // TODO: IMPORTANT here, amount is number of shares
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "CANCEL_SELL",
+                user.username,
+                transaction.stockSymbol,
+                "",
+                transaction.amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         transaction.delete()
         return "Canceled successfully"
     }
@@ -231,6 +334,21 @@ class TransactionService {
                 TriggerStatusEnum.SET_BUY
         ).save()
 
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                quote.server,
+                1,
+                "SET_BUY_AMOUNT",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
@@ -252,6 +370,23 @@ class TransactionService {
         if(!dbService.releaseReservedMoney(user.username,record.reservedBalance))return "user not found"
 
         record.status = TriggerStatusEnum.CANCELED
+        record.save()
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "CANCEL_SET_BUY",
+                user.username,
+                stockSymbol,
+                "",
+                record.reservedBalance.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         return "set_buy canceled"
     }
 
@@ -267,6 +402,22 @@ class TransactionService {
         record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
         record.save()
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "SET_BUY_TRIGGER",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         return "buy trigger set"
     }
 
@@ -287,6 +438,21 @@ class TransactionService {
                 0,
                 TriggerStatusEnum.SET_SELL
         ).save()
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "SET_SELL_AMOUNT",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
 
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
@@ -315,6 +481,22 @@ class TransactionService {
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
         record.save()
 
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "SET_SELL_TRIGGER",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
+
         return "sell trigger set"
     }
 
@@ -333,8 +515,28 @@ class TransactionService {
         dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
 
         record.status = TriggerStatusEnum.CANCELED
+        record.save()
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "SET_SELL_TRIGGER",
+                user.username,
+                stockSymbol,
+                "",
+                record.triggerPrice.toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getUserCommandString(obj)
+        // save to db
+        new LogHistory(user, str).save()
+
         return "set_sell canceled"
     }
+
+
+
 
     def checkTrigger() {
         def records = TransactionTrigger.createCriteria().list {
