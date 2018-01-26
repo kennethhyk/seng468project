@@ -311,6 +311,8 @@ class TestDbServiceController {
         }
 
         if(user.stockShareMap['ABC'] != "80") log.error("share reservation error")
+
+
+        auditService.dumpLog("ws_test","./logFile.xml")
     }
 }
- 

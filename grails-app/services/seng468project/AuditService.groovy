@@ -17,16 +17,28 @@ class AuditService {
             "<log>\n" +
             "\n "
     String footer = "\n</log>"
-    Path out_path = Paths.get("./logFile.xml")
-    BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
 
+    def dumpLog(String username=null, String filename){
+        def records
+        if(username){
+            def user = User.createCriteria().get{
+                eq 'username',username
+            } as User
 
-    def serviceMethod() {
+            records = LogHistory.createCriteria().list {
+                eq 'user',user
+            } as ArrayList<LogHistory>
+        }else{
+            records = LogHistory.createCriteria().list {} as ArrayList<LogHistory>
+        }
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename))
+        writer.write(header)
 
-    }
-
-    def audit(){
-
+        records.each{
+            writer.write(it.xmlBlock)
+        }
+        writer.write(footer)
+        writer.close()
     }
 
     def auditUserCommand(UserCommandTypeBean obj){
