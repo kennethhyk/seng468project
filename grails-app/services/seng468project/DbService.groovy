@@ -1,15 +1,18 @@
 package seng468project
 
 import grails.transaction.Transactional
+import seng468project.beans.AccountTransactionTypeBean
+
 import java.security.*
 
 @Transactional
 class DbService {
 
+    def AuditService
+
     def refreshDb(){
         TransactionTrigger.executeUpdate('delete from TransactionTrigger')
         User.executeUpdate('delete from User')
-
     }
 
     def addAmount(String userId, String amount){
@@ -24,6 +27,17 @@ class DbService {
         BigDecimal bd_amount = new BigDecimal(amount)
         row.balance = row.balance.add(bd_amount)
         row.save()
+
+        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "ADD",
+                userId,
+                amount
+        )
+        String str = auditService.getAccountTransactionString(obj)
+        new LogHistory(row,str).save()
         return 1
     }
 
@@ -31,6 +45,19 @@ class DbService {
     def addAmount(User user, String amount){
         user.balance += new BigDecimal(amount)
         user.save()
+
+        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
+                System.currentTimeMillis(),
+                "",
+                1,
+                "ADD",
+                user.username,
+                amount
+        )
+        String str = auditService.getAccountTransactionString(obj)
+        new LogHistory(user,str).save()
+
+        return 1
     }
 
     def removeAmount(String userId, String amount){

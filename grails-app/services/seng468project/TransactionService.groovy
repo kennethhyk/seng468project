@@ -137,6 +137,9 @@ class TransactionService {
             return "You dont have an active trasaction"
         }
 
+        transaction.status = TransactionStatusEnum.CANCEL_BUY
+        transaction.save()
+
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "",
@@ -152,7 +155,6 @@ class TransactionService {
         // save to db
         new LogHistory(user, str).save()
 
-        transaction.delete()
         return "Canceled successfully"
     }
 
@@ -262,6 +264,9 @@ class TransactionService {
             return "You dont have an active transaction"
         }
 
+        transaction.status = TransactionStatusEnum.CANCEL_SELL
+        transaction.save()
+
         // TODO: IMPORTANT here, amount is number of shares
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
@@ -278,7 +283,6 @@ class TransactionService {
         // save to db
         new LogHistory(user, str).save()
 
-        transaction.delete()
         return "Canceled successfully"
     }
 
@@ -563,8 +567,20 @@ class TransactionService {
                 dbService.addStockShares(it.user.username,it.stockSymbol,sharesToBuy.intValueExact())
                 it.user.reservedBalance -= it.reservedBalance
                 it.user.save()
-
                 it.status = TriggerStatusEnum.DONE
+
+                UserCommandTypeBean obj = new UserCommandTypeBean(
+                        System.currentTimeMillis(),
+                        "",
+                        1,
+                        "COMMIT_BUY",
+                        it.user.username,
+                        it.stockSymbol,
+                        "",
+                        it.reservedBalance.toString()
+                )
+                String str = auditService.getSystemEventString(obj)
+                new LogHistory(it.user,str).save()
 
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell
@@ -572,6 +588,19 @@ class TransactionService {
 
                 dbService.addAmount(it.user.username,moneyToAdd.toString())
                 it.status = TriggerStatusEnum.DONE
+
+                UserCommandTypeBean obj = new UserCommandTypeBean(
+                        System.currentTimeMillis(),
+                        "",
+                        1,
+                        "COMMIT_SELL",
+                        it.user.username,
+                        it.stockSymbol,
+                        "",
+                        moneyToAdd.toString()
+                )
+                String str = auditService.getSystemEventString(obj)
+                new LogHistory(it.user,str).save()
             }
 
         }

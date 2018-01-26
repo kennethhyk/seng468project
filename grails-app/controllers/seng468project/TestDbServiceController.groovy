@@ -9,7 +9,7 @@ class TestDbServiceController {
     def TransactionService
 
     def index() {
-        dbService.refreshDb()
+        //dbService.refreshDb()
 
         if(dbService.addNewUser('ws_test','999.00')){
             log.info('addNewUser test1 PASSED!')
@@ -313,3 +313,4 @@ class TestDbServiceController {
         if(user.stockShareMap['ABC'] != "80") log.error("share reservation error")
     }
 }
+ 

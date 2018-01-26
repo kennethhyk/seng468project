@@ -5,8 +5,9 @@ package seng468project.enums
  */
 enum TransactionStatusEnum {
     BUY,
-    COMMIT_BUY,
     SELL,
+    COMMIT_BUY,
     COMMIT_SELL,
-    CANCEL_BUY
+    CANCEL_BUY,
+    CANCEL_SELL,
 }
