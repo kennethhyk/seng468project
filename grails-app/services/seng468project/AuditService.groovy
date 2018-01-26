@@ -13,9 +13,8 @@ import seng468project.beans.UserCommandTypeBean
 class AuditService {
 
 
-    String header = "<?xml version=\"1.0\">\n" +
-            "<log>\n" +
-            "\n "
+    String header = "<?xml version=\"1.0\"?>\n" +
+            "<log>\n"
     String footer = "\n</log>"
 
     def dumpLog(String username=null, String filename){
@@ -44,7 +43,7 @@ class AuditService {
     def auditUserCommand(UserCommandTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<UserCommandType>\n" +
+        writer.write("<userCommandType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
                 "   <server>" + obj.server+ "</server>\n" +
                 "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
@@ -58,16 +57,16 @@ class AuditService {
     }
 
     String getUserCommandString(UserCommandTypeBean obj){
-        return "<UserCommandType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</UserCommandType>\n"
+        return "    <userCommand>\n" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
+                "       <server>" + obj.server+ "</server>\n" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
+                "       <command>" + obj.command+ "</command>\n" +
+                "       <username>" + obj.username+ "</username>\n" +
+                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
+                "       <filename>" + obj.filename+ "</filename>\n" +
+                "       <funds>" + obj.funds+ "</funds>\n" +
+                "   </userCommand>\n"
     }
 
     def auditQuoteServerRecord(QuoteServerTypeBean obj){
@@ -87,16 +86,16 @@ class AuditService {
     }
 
     String getQuoteServerString(QuoteServerTypeBean obj){
-        return "<QuoteServerType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <price>" + obj.price+ "</price>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>\n" +
-                "   <cryptokey>" + obj.cryptoKey+ "</cryptokey>\n" +
-                "</QuoteServerType>\n"
+        return "    <quoteServer>\n" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
+                "       <server>" + obj.server+ "</server>\n" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
+                "       <price>" + obj.price+ "</price>\n" +
+                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
+                "       <username>" + obj.username+ "</username>\n" +
+                "       <quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>\n" +
+                "       <cryptokey>" + obj.cryptoKey+ "</cryptokey>\n" +
+                "   </quoteServer>\n"
     }
 
     def auditAccountTransaction(AccountTransactionTypeBean obj){
@@ -113,13 +112,14 @@ class AuditService {
     }
 
     String getAccountTransactionString(AccountTransactionTypeBean obj){
-        return "<AccountTransactionType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</AccountTransactionType>\n"
+        return "    <accountTransaction>\n" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
+                "       <server>" + obj.server+ "</server>\n" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
+                "       <action>" + obj.action+ "</action>\n" +
+                "       <username>" + obj.username+ "</username>\n" +
+                "       <funds>" + obj.funds+ "</funds>\n" +
+                "   </accountTransaction>\n"
     }
 
     def auditSystemEvents(UserCommandTypeBean obj){
@@ -139,16 +139,16 @@ class AuditService {
     }
 
     String getSystemEventString(UserCommandTypeBean obj){
-        return "<SystemEventType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</SystemEventType>\n"
+        return "    <systemEvent>\n" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
+                "       <server>" + obj.server+ "</server>\n" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
+                "       <command>" + obj.command+ "</command>\n" +
+                "       <username>" + obj.username+ "</username>\n" +
+                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
+                "       <filename>" + obj.filename+ "</filename>\n" +
+                "       <funds>" + obj.funds+ "</funds>\n" +
+                "   </systemEvent>\n"
     }
 
     def auditErrorEvents(UserCommandTypeBean obj, String err_msg){
