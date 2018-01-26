@@ -186,6 +186,12 @@ class TestDbServiceController {
         def trig = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol','ABC'
+            or {
+                eq 'status', TriggerStatusEnum.SET_BUY_TRIGGER
+                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+                eq 'status', TriggerStatusEnum.SET_SELL
+                eq 'status', TriggerStatusEnum.SET_BUY
+            }
         } as TransactionTrigger
 
         if(!trig) log.error("record not found")
@@ -279,6 +285,12 @@ class TestDbServiceController {
         def trig_2 = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol','ABC'
+            or {
+                eq 'status', TriggerStatusEnum.SET_BUY_TRIGGER
+                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+                eq 'status', TriggerStatusEnum.SET_SELL
+                eq 'status', TriggerStatusEnum.SET_BUY
+            }
         } as TransactionTrigger
 
         if(!trig_2) log.error("record not found")

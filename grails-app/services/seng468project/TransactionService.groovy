@@ -251,7 +251,7 @@ class TransactionService {
         // release money
         if(!dbService.releaseReservedMoney(user.username,record.reservedBalance))return "user not found"
 
-        record.delete()
+        record.status = TriggerStatusEnum.CANCELED
         return "set_buy canceled"
     }
 
@@ -332,8 +332,47 @@ class TransactionService {
         // release shares
         dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
 
-        record.delete()
+        record.status = TriggerStatusEnum.CANCELED
         return "set_sell canceled"
+    }
+
+    def checkTrigger() {
+        def records = TransactionTrigger.createCriteria().list {
+            or {
+                eq 'status', TriggerStatusEnum.SET_BUY_TRIGGER
+                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+            }
+        } as ArrayList<TransactionTrigger>
+
+        QuoteServerTypeBean quote = null
+
+        //TODO cache
+        records.each {
+            quote = quoteService.getQuote(it.user,it.stockSymbol)
+            if(it.status == TriggerStatusEnum.SET_BUY_TRIGGER && quote.price <= it.triggerPrice){
+                // TODO: use commit buy
+                BigDecimal sharesCanBuy = it.reservedBalance/quote.price
+                BigDecimal sharesToBuy = sharesCanBuy.setScale(0, RoundingMode.FLOOR)
+                BigDecimal amountToReturn = it.reservedBalance - (sharesToBuy*quote.price)
+
+                //TODO: use db methods
+                dbService.removeAmount(it.user.username,it.reservedBalance.toString())
+                dbService.addAmount(it.user.username,amountToReturn.toString())
+                dbService.addStockShares(it.user.username,it.stockSymbol,sharesToBuy.intValueExact())
+                it.user.reservedBalance -= it.reservedBalance
+                it.user.save()
+
+                it.status = TriggerStatusEnum.DONE
+
+            }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
+                // TODO: use sell
+                BigDecimal moneyToAdd = new BigDecimal(it.reservedShares)* quote.price
+
+                dbService.addAmount(it.user.username,moneyToAdd.toString())
+                it.status = TriggerStatusEnum.DONE
+            }
+
+        }
     }
 
 }

@@ -52,8 +52,8 @@ class CommandHandlerService {
                 case "SET_BUY_AMOUNT":
                     log.debug("this is the SET_BUY_AMOUNT function")
                     break
-                case "CANCEL":
-                    log.debug("this is the CANCEL function")
+                case "CANCEL_SET_BUY":
+                    log.debug("this is the CANCEL_SET_BUY function")
                     break
                 case "SET_BUY_TRIGGER":
                     log.debug("this is the SET_BUY_TRIGGER function")
