@@ -7,12 +7,14 @@ class CSocket {
     private Socket clientSocket
     private PrintWriter outputStream
     private BufferedReader inputStream
-    private retriesAllowed = 10
+    private retriesAllowed = 1
 
     void start(String ip, int port) {
         for (i in (1..retriesAllowed)) {
             try{
+                System.out.println("trying to connect")
                 clientSocket = new Socket(ip, port)
+                System.out.println("connected")
                 outputStream = new PrintWriter(clientSocket.getOutputStream(), true)
                 inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
                 break

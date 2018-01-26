@@ -7,36 +7,20 @@ import seng468project.helpers.CSocket
 @Transactional
 class QuoteService {
 
-//    def auditService
+    def auditService
 
-//    CSocket client = new CSocket()
-//    int port = 4447
+    CSocket client = new CSocket()
+    String ipaddress = "192.168.1.152"
+    int port = 4445
 
     def getQuote(User user, String symbol) {
         //todo:change to fit real quote response
-//        client.start("quoteserve.seng", port)
-//        String res = client.sendMessage("ABC, ZaaS")
-//        List<String> resList = res.split(",")
-
-//        QuoteServerTypeBean record = new QuoteServerTypeBean(
-//                timestamp: 234234,
-//                server: "Zaas",
-//                transactionNum: 123,
-//                price: resList[1],
-//                stockSymbol: resList[0],
-//                username: "GG wetwet der",
-//                quoteServerTime: 984789479817,
-//                cryptoKey: resList[2])
-        QuoteServerTypeBean record = new QuoteServerTypeBean(
-                 234234,
-                 "Zaas",
-                 123,
-                 "123",
-                 "what",
-                 "GG wetwet der",
-                 98479817,
-                 "hey")
-//        auditService.auditQuoteServerRecord(record)
+        client.start( ipaddress, port )
+        String res = client.sendMessage(symbol +"," + user.username)
+        client.stop()
+        List<String> resList = res.split(",")
+        QuoteServerTypeBean record = new QuoteServerTypeBean(234234 as Long, "Zaas", 1, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+        auditService.auditQuoteServerRecord(record)
         return record
     }
 }
