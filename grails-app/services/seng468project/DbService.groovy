@@ -15,7 +15,7 @@ class DbService {
         User.executeUpdate('delete from User')
     }
 
-    def addAmount(String userId, String amount){
+    def addAmount(String userId, String amount, int transactionNum){
         def row = User.createCriteria().get{
             eq'username',userId
         } as User
@@ -31,7 +31,7 @@ class DbService {
         AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
-                1,
+                transactionNum,
                 "ADD",
                 userId,
                 amount
@@ -42,14 +42,14 @@ class DbService {
     }
 
     // TODO: change dbservice to use user isntead of id? talk to Kenneth
-    def addAmount(User user, String amount){
+    def addAmount(User user, String amount, int transactionNum){
         user.balance += new BigDecimal(amount)
         user.save()
 
         AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
-                1,
+                transactionNum,
                 "ADD",
                 user.username,
                 amount

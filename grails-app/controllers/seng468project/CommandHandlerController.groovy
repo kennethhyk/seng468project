@@ -10,9 +10,10 @@ class CommandHandlerController {
 //        try {
             def res = request.JSON
             String commandString = res.command
+            int transactionNum = res.transaction as Integer
             log.info("command recieved: $commandString")
             System.out.println("$commandString")
-            String response = commandHandlerService.commandHandling(commandString)
+            String response = commandHandlerService.commandHandling(commandString, transactionNum)
             render contentType: "application/json", text: "[{'content':'command recieved $commandString', 'res': '$response'}]"
 //        }
 //        catch(Exception e) {

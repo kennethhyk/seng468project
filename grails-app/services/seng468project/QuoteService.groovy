@@ -16,7 +16,7 @@ class QuoteService {
     int port = 4445
     Boolean test = false
 
-    def getQuote(User user, String symbol) {
+    def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response
         QuoteServerTypeBean record
         if(!test){
@@ -32,7 +32,7 @@ class QuoteService {
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
                 "quoteserve.seng:"+ (port as String),
-                1,
+                transactionNum,
                 "21.4",
                 symbol,
                 user.username,

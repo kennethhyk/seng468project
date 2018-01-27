@@ -23,7 +23,7 @@ class TestDbServiceController {
             log.info('addNewUser test2 PASSED!')
         }
 
-        if(dbService.addAmount('ws_test','1')){
+        if(dbService.addAmount('ws_test','1',1)){
             log.info('addAmount  PASSED!')
         }else{
             log.error('addAmount')
