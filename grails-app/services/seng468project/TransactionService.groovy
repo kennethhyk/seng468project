@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
+import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.UserCommandTypeBean
 import seng468project.enums.TransactionStatusEnum
@@ -40,8 +41,8 @@ class TransactionService {
         // object for XML block
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                quote.server,
-                quote.transactionNum,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "BUY",
                 user.username,
                 stockSymbol,
@@ -84,25 +85,34 @@ class TransactionService {
             return "your purchase amount wont be able to buy one share"
         }
 
-        BigDecimal shareAmount = transaction.amount.divideToIntegralValue(transaction.quotedPrice, new MathContext(2))
-        BigDecimal value = user.stockShareMap.get(transaction.stockSymbol) as BigDecimal
-        if (value) {
-            user.stockShareMap[transaction.stockSymbol] += shareAmount
-        } else {
-            user.stockShareMap.put(transaction.stockSymbol, shareAmount.toString())
-        }
-        user.balance = user.balance - transaction.amount + (transaction.amount.remainder(transaction.quotedPrice))
+        BigDecimal shareAmount = transaction.amount/transaction.quotedPrice
+        BigDecimal sharesToBuy = shareAmount.setScale(0, RoundingMode.FLOOR)
+        dbService.addStockShares(transaction.user.username,transaction.stockSymbol,sharesToBuy.intValueExact())
+        user.balance = user.balance - (sharesToBuy*transaction.quotedPrice)
         user.save()
         transaction.status = TransactionStatusEnum.COMMIT_BUY
         transaction.save()
+
+        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
+                "COMMIT_BUY",
+                user.username,
+                (sharesToBuy*transaction.quotedPrice).toString()
+        )
+        // get the corresponding formatted XML block
+        String str = auditService.getAccountTransactionString(obj_1)
+        // save to db
+        new LogHistory(user, str).save()
 
 
         // object for XML block
         // TODO: generate transactionNumber
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "COMMIT_BUY",
                 user.username,
                 transaction.stockSymbol,
@@ -110,7 +120,7 @@ class TransactionService {
                 transaction.amount.toString()
         )
         // get the corresponding formatted XML block
-        String str = auditService.getUserCommandString(obj)
+        str = auditService.getUserCommandString(obj)
         // save to db
         new LogHistory(user, str).save()
 
@@ -142,8 +152,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "CANCEL_BUY",
                 user.username,
                 transaction.stockSymbol,
@@ -178,8 +188,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                quote.server,
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "SELL",
                 user.username,
                 transaction.stockSymbol,
@@ -219,17 +229,28 @@ class TransactionService {
         }
 
         // TODO: use DbServices for modifying db records later
-        BigDecimal sellPriceAmount = transaction.amount.multiply(transaction.quotedPrice, new MathContext(2))
+        BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2)
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
         user.balance = user.balance + sellPriceAmount
         user.save()
         transaction.status = TransactionStatusEnum.COMMIT_SELL
         transaction.save()
 
+        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
+                "COMMIT_SELL",
+                user.username,
+                sellPriceAmount.toString()
+        )
+        String str = auditService.getAccountTransactionString(obj_1)
+        new LogHistory(user, str).save()
+
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "COMMIT_SELL",
                 user.username,
                 transaction.stockSymbol,
@@ -237,7 +258,7 @@ class TransactionService {
                 sellPriceAmount.toString()
         )
         // get the corresponding formatted XML block
-        String str = auditService.getUserCommandString(obj)
+        str = auditService.getUserCommandString(obj)
         // save to db
         new LogHistory(user, str).save()
 
@@ -270,8 +291,8 @@ class TransactionService {
         // TODO: IMPORTANT here, amount is number of shares
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                transaction.id as Integer,
                 "CANCEL_SELL",
                 user.username,
                 transaction.stockSymbol,
@@ -340,8 +361,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                quote.server,
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                new_trig as Integer,
                 "SET_BUY_AMOUNT",
                 user.username,
                 stockSymbol,
@@ -378,8 +399,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                record.id as Integer,
                 "CANCEL_SET_BUY",
                 user.username,
                 stockSymbol,
@@ -409,8 +430,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                record.id as Integer,
                 "SET_BUY_TRIGGER",
                 user.username,
                 stockSymbol,
@@ -445,8 +466,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                new_trig.id as Integer,
                 "SET_SELL_AMOUNT",
                 user.username,
                 stockSymbol,
@@ -487,8 +508,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                record.id as Integer,
                 "SET_SELL_TRIGGER",
                 user.username,
                 stockSymbol,
@@ -523,8 +544,8 @@ class TransactionService {
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
-                "",
-                1,
+                "TRANSACTION SERVER: ZaaS",
+                record.id as Integer,
                 "SET_SELL_TRIGGER",
                 user.username,
                 stockSymbol,
@@ -569,18 +590,30 @@ class TransactionService {
                 it.user.save()
                 it.status = TriggerStatusEnum.DONE
 
+                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+                        System.currentTimeMillis(),
+                        "TRANSACTION SERVER: ZaaS",
+                        it.user.id as Integer,
+                        "BUY_TRIGGERED",
+                        it.user.username,
+                        it.user.reservedBalance.toString()
+                )
+                String str = auditService.getAccountTransactionString(obj_1)
+                new LogHistory(it.user, str).save()
+
                 UserCommandTypeBean obj = new UserCommandTypeBean(
                         System.currentTimeMillis(),
-                        "",
-                        1,
+                        "TRANSACTION SERVER: ZaaS",
+                        it.user.id as Integer,
                         "COMMIT_BUY",
                         it.user.username,
                         it.stockSymbol,
                         "",
                         it.reservedBalance.toString()
                 )
-                String str = auditService.getSystemEventString(obj)
-                new LogHistory(it.user,str).save()
+                String str_1 = auditService.getSystemEventString(obj)
+                new LogHistory(it.user,str_1).save()
+
 
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell
@@ -589,18 +622,29 @@ class TransactionService {
                 dbService.addAmount(it.user.username,moneyToAdd.toString())
                 it.status = TriggerStatusEnum.DONE
 
+                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+                        System.currentTimeMillis(),
+                        "TRANSACTION SERVER: ZaaS",
+                        it.user.id as Integer,
+                        "SELL_TRIGGERED",
+                        it.user.username,
+                        moneyToAdd.toString()
+                )
+                String str = auditService.getAccountTransactionString(obj_1)
+                new LogHistory(it.user, str).save()
+
                 UserCommandTypeBean obj = new UserCommandTypeBean(
                         System.currentTimeMillis(),
-                        "",
-                        1,
+                        "TRANSACTION SERVER: ZaaS",
+                        it.user.id as Integer,
                         "COMMIT_SELL",
                         it.user.username,
                         it.stockSymbol,
                         "",
                         moneyToAdd.toString()
                 )
-                String str = auditService.getSystemEventString(obj)
-                new LogHistory(it.user,str).save()
+                String str_1 = auditService.getSystemEventString(obj)
+                new LogHistory(it.user,str_1).save()
             }
 
         }

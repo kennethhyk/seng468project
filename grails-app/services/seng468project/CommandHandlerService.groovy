@@ -22,15 +22,16 @@ class CommandHandlerService {
         String res = ""
         CommandBean commandBean = parseCommandAndCreateCommandBean(command)
         if(commandBean.command == null) {
+            System.out.println("Command $command is not recognized")
             log.info("Command $command is not recognized")
         } else if(commandBean.parameterList == null) {
+                System.out.println("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
                 log.info("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
             } else {
                 User user = User.findByUsername(commandBean.parameterList[0] as String)
                 switch(commandBean.command as String) {
                 case "ADD":
                     res = dbService.addAmount(commandBean.parameterList[0],commandBean.parameterList[1])
-                    log.debug("this is the ADD function")
                     break
                 case "QUOTE":
                     res = quoteService.getQuote(user, commandBean.parameterList[1])
@@ -78,8 +79,8 @@ class CommandHandlerService {
                     log.debug("this is the CANCEL_SET_SELL function")
                     break
                 case "DUMPLOG":
-                    res = auditService.dumpLog("logFile.xml")
-                    log.debug("this is the DUMPLOG function")
+                    System.out.println("command handler dumplog")
+                    res = auditService.dumpLog(commandBean.parameterList[0])
                     break
                 case "DISPLAY_SUMMARY":
                     log.debug("this is the DISPLAY_SUMMARY function")

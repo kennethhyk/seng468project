@@ -24,20 +24,20 @@ class QuoteService {
             String res = client.sendMessage(symbol +"," + user.username)
             client.stop()
             List<String> resList = res.split(",")
-            record = new QuoteServerTypeBean(System.currentTimeMillis(), "Zaas", 1, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+            record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), 1, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
 
             String str = auditService.getQuoteServerString(record)
             new LogHistory(user,str).save()
         }else{
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
-                "test_server",
+                "quoteserve.seng:"+ (port as String),
                 1,
                 "21.4",
                 symbol,
                 user.username,
                 123192 as Long,
-                "jslif)FDJ*e8f this is the cryptokey"
+                "this is the cryptokey"
             )
             String str = auditService.getQuoteServerString(record)
             new LogHistory(user,str).save()

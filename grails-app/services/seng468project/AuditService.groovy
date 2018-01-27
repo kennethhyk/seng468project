@@ -17,8 +17,11 @@ class AuditService {
             "<log>\n"
     String footer = "\n</log>"
 
-    String dumpLog(String username=null, String filename){
+    String dumpLog(String filename){
+        String username = null
+        System.out.println("dumplog function")
         def records
+        String fileContent =""
         if(username){
             def user = User.createCriteria().get{
                 eq 'username',username
@@ -31,14 +34,17 @@ class AuditService {
             records = LogHistory.createCriteria().list {} as ArrayList<LogHistory>
         }
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename))
-        writer.write(header)
-
+        //writer.write(header)
+        fileContent += header
         records.each{
-            writer.write(it.xmlBlock)
+//            writer.write(it.xmlBlock)
+            fileContent += it.xmlBlock
         }
-        writer.write(footer)
+        //writer.write(footer)
+        fileContent += footer
+        writer.write(fileContent)
         writer.close()
-        return "done"
+        return fileContent
     }
 
     def auditUserCommand(UserCommandTypeBean obj){

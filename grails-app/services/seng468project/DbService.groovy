@@ -30,7 +30,7 @@ class DbService {
 
         AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
                 System.currentTimeMillis(),
-                "",
+                "TRANSACTION SERVER: ZaaS",
                 1,
                 "ADD",
                 userId,
@@ -48,7 +48,7 @@ class DbService {
 
         AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
                 System.currentTimeMillis(),
-                "",
+                "TRANSACTION SERVER: ZaaS",
                 1,
                 "ADD",
                 user.username,
