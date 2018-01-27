@@ -80,7 +80,7 @@ class CommandHandlerService {
                     break
                 case "DUMPLOG":
                     System.out.println("command handler dumplog")
-                    res = auditService.dumpLog(commandBean.parameterList[0], transactionNum)
+                    res = auditService.dumpLog(commandBean.parameterList[0])
                     break
                 case "DISPLAY_SUMMARY":
                     log.debug("this is the DISPLAY_SUMMARY function")

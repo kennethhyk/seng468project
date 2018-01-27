@@ -9,7 +9,6 @@ import seng468project.enums.TriggerStatusEnum
 
 import java.math.RoundingMode
 
-import java.math.MathContext
 import java.sql.Timestamp
 
 @Transactional
@@ -26,18 +25,6 @@ class TransactionService {
 
     String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
-        if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
-            log.info("you don't have enough money")
-            return "you don't have enough money"
-        }
-        Transaction transaction = new Transaction(
-                user: user,
-                status: TransactionStatusEnum.BUY,
-                stockSymbol: stockSymbol,
-                quotedPrice: quote.price,
-                amount: amountPrice
-        ).save()
-
         // object for XML block
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
@@ -49,6 +36,19 @@ class TransactionService {
                 "",
                 amountPrice.toString()
         )
+        if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
+            auditService.saveErrorEvent(user, obj, "you don't have enough money")
+            log.info("you don't have enough money")
+            return "you don't have enough money"
+        }
+        Transaction transaction = new Transaction(
+                user: user,
+                status: TransactionStatusEnum.BUY,
+                stockSymbol: stockSymbol,
+                quotedPrice: quote.price,
+                amount: amountPrice
+        ).save()
+
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db
@@ -59,6 +59,7 @@ class TransactionService {
     }
 
     String commitBuy(User user, int transactionNum) {
+
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -72,15 +73,29 @@ class TransactionService {
             eq('dateCreated', lastestTransactionTime )
         } as Transaction
 
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "COMMIT_BUY",
+                user.username,
+                "",
+                "",
+                ""
+        )
+
         if(!transaction) {
+            auditService.saveErrorEvent(user,obj,"No active buy was found for user $user.username")
             log.info("No active buy was found for user $user.username")
             return "No active buy was found for user $user.username"
         }
         if(user.realBalance() < transaction.amount) {
+            auditService.saveErrorEvent(user,obj,"you don't have enough money")
             log.info("you don't have enough money")
             return "you don't have enough money"
         }
         if(transaction.amount < transaction.quotedPrice){
+            auditService.saveErrorEvent(user,obj,"your purchase amount wont be able to buy one share")
             log.info("your purchase amount wont be able to buy one share")
             return "your purchase amount wont be able to buy one share"
         }
@@ -101,15 +116,10 @@ class TransactionService {
                 user.username,
                 (sharesToBuy*transaction.quotedPrice).toString()
         )
-        // get the corresponding formatted XML block
         String str = auditService.getAccountTransactionString(obj_1)
-        // save to db
         new LogHistory(user, str).save()
 
-
-        // object for XML block
-        // TODO: generate transactionNumber
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -119,11 +129,8 @@ class TransactionService {
                 "",
                 transaction.amount.toString()
         )
-        // get the corresponding formatted XML block
         str = auditService.getUserCommandString(obj)
-        // save to db
         new LogHistory(user, str).save()
-
 
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         log.info(res)
@@ -143,14 +150,27 @@ class TransactionService {
         def transaction = Transaction.createCriteria().get {
             eq('dateCreated', lastestTransactionTime )
         } as Transaction
+
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "CANCEL_BUY",
+                user.username,
+                "",
+                "",
+                ""
+        )
+
         if(!transaction) {
+            auditService.saveErrorEvent(user,obj,"You dont have an active trasaction")
             return "You dont have an active trasaction"
         }
 
         transaction.status = TransactionStatusEnum.CANCEL_BUY
         transaction.save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -171,10 +191,22 @@ class TransactionService {
     String sell(User user, String stockSymbol, BigDecimal sellPriceAmount, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "SELL",
+                user.username,
+                "",
+                "",
+                ""
+        )
+
         BigDecimal sharesCanSell = sellPriceAmount/quote.price
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
+            auditService.saveErrorEvent(user,obj,"you don't have enough share")
             log.info("you don't have enough share")
             return "you don't have enough share"
         }
@@ -186,7 +218,7 @@ class TransactionService {
                 amount: sharesToSell
         ).save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -206,6 +238,16 @@ class TransactionService {
     }
 
     String commitSell(User user, int transactionNum) {
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "COMMIT_SELL",
+                user.username,
+                "",
+                "",
+                ""
+        )
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -220,10 +262,12 @@ class TransactionService {
         } as Transaction
 
         if(!transaction) {
+            auditService.saveErrorEvent(user,obj,"No active sell was found for user $user.username")
             log.info("No active sell was found for user $user.username")
             return "No active sell was found for user $user.username"
         }
         if((user.stockShareMap[transaction.stockSymbol] as Integer) < transaction.amount) {
+            auditService.saveErrorEvent(user,obj,"you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
             log.info("you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
             return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
         }
@@ -247,7 +291,7 @@ class TransactionService {
         String str = auditService.getAccountTransactionString(obj_1)
         new LogHistory(user, str).save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -269,6 +313,16 @@ class TransactionService {
     }
 
     String cancelSell(User user, int transactionNum) {
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "CANCEL_SELL",
+                user.username,
+                "",
+                "",
+                ""
+        )
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -282,6 +336,7 @@ class TransactionService {
             eq('dateCreated', lastestTransactionTime )
         } as Transaction
         if(!transaction) {
+            auditService.saveErrorEvent(user,obj,"You dont have an active transaction")
             return "You dont have an active transaction"
         }
 
@@ -289,7 +344,7 @@ class TransactionService {
         transaction.save()
 
         // TODO: IMPORTANT here, amount is number of shares
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -337,15 +392,34 @@ class TransactionService {
     }
 
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "SET_BUY_AMOUNT",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
         // if trigger already exitst, don't proceed any further
-        if(triggerExists(user,stockSymbol,"BUY")) return "TransactionTrigger for $stockSymbol already exists"
+        if(triggerExists(user,stockSymbol,"BUY")) {
+            auditService.saveErrorEvent(user,obj, "TransactionTrigger for $stockSymbol already exists")
+            return "TransactionTrigger for $stockSymbol already exists"
+        }
         // get quote
         QuoteServerTypeBean quote = quoteService.getQuote(user,stockSymbol, transactionNum)
         // check have enough money
-        if(!hasSufficientBalance(user.realBalance(),amount,quote.price)) return "you son't have enough money"
+        if(!hasSufficientBalance(user.realBalance(),amount,quote.price)) {
+            auditService.saveErrorEvent(user,obj, "you don't have enough money")
+            return "you don't have enough money"
+        }
         // TODO check if can access db through user.
         // reserve money
-        if(!dbService.reserveMoney(user.username, amount))return "user doesn't exist"
+        if(!dbService.reserveMoney(user.username, amount)){
+            auditService.saveErrorEvent(user,obj, "user doesn't exist")
+            return "user doesn't exist"
+        }
 
         // TODO: relate trigger table to user table
         // create new trigger record in db
@@ -359,16 +433,6 @@ class TransactionService {
                 TriggerStatusEnum.SET_BUY
         ).save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_BUY_AMOUNT",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db
@@ -378,6 +442,16 @@ class TransactionService {
     }
 
     String cancelSetBuy(User user,String stockSymbol, int transactionNum){
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "CANCEL_SET_BUY",
+                user.username,
+                stockSymbol,
+                "",
+                ""
+        )
         // find the trigger
         def record = TransactionTrigger.createCriteria().get{
             and {
@@ -389,15 +463,21 @@ class TransactionService {
                 }
             }
         } as TransactionTrigger
-        if(!record) return "no trigger record found"
+        if(!record) {
+            auditService.saveErrorEvent(user,obj,"no trigger record found")
+            return "no trigger record found"
+        }
 
         // release money
-        if(!dbService.releaseReservedMoney(user.username,record.reservedBalance))return "user not found"
+        if(!dbService.releaseReservedMoney(user.username,record.reservedBalance)){
+            auditService.saveErrorEvent(user,obj,"user not found")
+            return "user not found"
+        }
 
         record.status = TriggerStatusEnum.CANCELED
         record.save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
+        obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
                 transactionNum,
@@ -416,18 +496,6 @@ class TransactionService {
     }
 
     String setBuyTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        def record = TransactionTrigger.createCriteria().get{
-            eq'user',user
-            eq 'stockSymbol',stockSymbol
-            eq 'status', TriggerStatusEnum.SET_BUY
-        } as TransactionTrigger
-
-        if(!record) return "no record found, please set buy amount first"
-
-        record.status = TriggerStatusEnum.SET_BUY_TRIGGER
-        record.triggerPrice = amount
-        record.save()
-
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
@@ -438,6 +506,21 @@ class TransactionService {
                 "",
                 amount.toString()
         )
+        def record = TransactionTrigger.createCriteria().get{
+            eq'user',user
+            eq 'stockSymbol',stockSymbol
+            eq 'status', TriggerStatusEnum.SET_BUY
+        } as TransactionTrigger
+
+        if(!record) {
+            auditService.saveErrorEvent(user,obj,"no record found, please set buy amount first")
+            return "no record found, please set buy amount first"
+        }
+
+        record.status = TriggerStatusEnum.SET_BUY_TRIGGER
+        record.triggerPrice = amount
+        record.save()
+
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db
@@ -448,9 +531,21 @@ class TransactionService {
 
     //TODO: add function to handle buy trigger
     String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "SET_SELL_AMOUNT",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
         // check no other triggers for the same symbol
-        if(triggerExists(user,stockSymbol,"SELL")) return "TransactionTrigger for $stockSymbol already exists"
+        if(triggerExists(user,stockSymbol,"SELL")) {
+            auditService.saveErrorEvent(user,obj,"TransactionTrigger for $stockSymbol already exists")
+            return "TransactionTrigger for $stockSymbol already exists"
+        }
 
         // TODO: relate trigger table to user table
         // create new trigger to table
@@ -464,16 +559,6 @@ class TransactionService {
                 TriggerStatusEnum.SET_SELL
         ).save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_SELL_AMOUNT",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db
@@ -483,19 +568,35 @@ class TransactionService {
     }
 
     String setSellTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
+        UserCommandTypeBean obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "SET_SELL_TRIGGER",
+                user.username,
+                stockSymbol,
+                "",
+                amount.toString()
+        )
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
             eq 'status', TriggerStatusEnum.SET_SELL
         } as TransactionTrigger
 
-        if(!record) return "no record found, please set sell amount first"
+        if(!record) {
+            auditService.saveErrorEvent(user,obj,"no record found, please set sell amount first")
+            return "no record found, please set sell amount first"
+        }
 
         BigDecimal sharesCanSell = record.buySellAmount/amount
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         // check user has sufficient shares
-        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell) return "not enough shares to sell"
+        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell) {
+            auditService.saveErrorEvent(user,obj,"not enough shares to sell")
+            return "not enough shares to sell"
+        }
 
         //reserve shares
         //TODO: need to implement another map for reservedshares
@@ -506,42 +607,15 @@ class TransactionService {
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
         record.save()
 
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_SELL_TRIGGER",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db
         new LogHistory(user, str).save()
 
-
         return "sell trigger set"
     }
 
     String cancelSetSell(User user,String stockSymbol, int transactionNum){
-        TransactionTrigger record = TransactionTrigger.createCriteria().get{
-            eq'user',user
-            eq 'stockSymbol',stockSymbol
-            or {
-                eq 'status', TriggerStatusEnum.SET_SELL
-                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
-            }
-        }
-        if(!record) return "no trigger record found"
-
-        // release shares
-        dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
-
-        record.status = TriggerStatusEnum.CANCELED
-        record.save()
-
         UserCommandTypeBean obj = new UserCommandTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
@@ -552,6 +626,26 @@ class TransactionService {
                 "",
                 record.triggerPrice.toString()
         )
+        TransactionTrigger record = TransactionTrigger.createCriteria().get{
+            eq'user',user
+            eq 'stockSymbol',stockSymbol
+            or {
+                eq 'status', TriggerStatusEnum.SET_SELL
+                eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
+            }
+        }
+        if(!record) {
+            auditService.saveErrorEvent(user,obj,"no trigger record found")
+            return "no trigger record found"
+        }
+
+        // release shares
+        dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
+
+        record.status = TriggerStatusEnum.CANCELED
+        record.save()
+
+
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db

@@ -2,6 +2,7 @@ package seng468project
 
 import grails.transaction.Transactional
 import seng468project.beans.AccountTransactionTypeBean
+import seng468project.beans.UserCommandTypeBean
 
 import java.security.*
 
@@ -28,6 +29,19 @@ class DbService {
         row.balance = row.balance.add(bd_amount)
         row.save()
 
+        UserCommandTypeBean obj_1 = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "ADD",
+                userId,
+                "",
+                "",
+                amount
+        )
+        String str_1 = auditService.getUserCommandString(obj_1)
+        new LogHistory(row,str_1).save()
+
         AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
                 System.currentTimeMillis(),
                 "TRANSACTION SERVER: ZaaS",
@@ -38,25 +52,6 @@ class DbService {
         )
         String str = auditService.getAccountTransactionString(obj)
         new LogHistory(row,str).save()
-        return 1
-    }
-
-    // TODO: change dbservice to use user isntead of id? talk to Kenneth
-    def addAmount(User user, String amount, int transactionNum){
-        user.balance += new BigDecimal(amount)
-        user.save()
-
-        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "ADD",
-                user.username,
-                amount
-        )
-        String str = auditService.getAccountTransactionString(obj)
-        new LogHistory(user,str).save()
-
         return 1
     }
 

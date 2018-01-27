@@ -24,7 +24,7 @@ class QuoteService {
             String res = client.sendMessage(symbol +"," + user.username)
             client.stop()
             List<String> resList = res.split(",")
-            record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), 1, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+            record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
 
             String str = auditService.getQuoteServerString(record)
             new LogHistory(user,str).save()

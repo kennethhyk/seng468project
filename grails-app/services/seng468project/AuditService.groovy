@@ -175,8 +175,8 @@ class AuditService {
         writer.close()
     }
 
-    String getErrorEventString(UserCommandTypeBean obj, String err_msg){
-        return "<ErrorEventType>\n" +
+    String saveErrorEvent(User user, UserCommandTypeBean obj, String err_msg){
+         String str = "<ErrorEventType>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
                 "   <server>" + obj.server+ "</server>\n" +
                 "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
@@ -187,6 +187,8 @@ class AuditService {
                 "   <funds>" + obj.funds+ "</funds>\n" +
                 "   <errorMessage>" + err_msg+ "</errorMessage>" +
                 "</ErrorEventType>\n"
+
+        new LogHistory(user,str).save()
     }
 
     def auditDebug(UserCommandTypeBean obj, String dbg_msg){
