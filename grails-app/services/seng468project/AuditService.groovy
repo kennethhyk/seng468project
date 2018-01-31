@@ -176,7 +176,7 @@ class AuditService {
     }
 
     String saveErrorEvent(User user, UserCommandTypeBean obj, String err_msg){
-         String str = "<ErrorEventType>\n" +
+         String str = "<errorEvent>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
                 "   <server>" + obj.server+ "</server>\n" +
                 "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
@@ -184,9 +184,9 @@ class AuditService {
                 "   <username>" + obj.username+ "</username>\n" +
                 "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
                 "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "   <errorMessage>" + err_msg+ "</errorMessage>" +
-                "</ErrorEventType>\n"
+                "   <funds>" + "0.00" + "</funds>\n" +
+                "   <errorMessage>" + err_msg+ "</errorMessage>\n" +
+                "</errorEvent>\n"
 
         new LogHistory(user,str).save()
     }

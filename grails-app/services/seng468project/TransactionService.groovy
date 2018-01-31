@@ -624,7 +624,7 @@ class TransactionService {
                 user.username,
                 stockSymbol,
                 "",
-                record.triggerPrice.toString()
+                ""
         )
         TransactionTrigger record = TransactionTrigger.createCriteria().get{
             eq'user',user
@@ -645,7 +645,16 @@ class TransactionService {
         record.status = TriggerStatusEnum.CANCELED
         record.save()
 
-
+        obj = new UserCommandTypeBean(
+                System.currentTimeMillis(),
+                "TRANSACTION SERVER: ZaaS",
+                transactionNum,
+                "SET_SELL_TRIGGER",
+                user.username,
+                stockSymbol,
+                "",
+                record.triggerPrice.toString()
+        )
         // get the corresponding formatted XML block
         String str = auditService.getUserCommandString(obj)
         // save to db

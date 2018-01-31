@@ -2,6 +2,7 @@ package seng468project
 
 import grails.transaction.Transactional
 import seng468project.beans.CommandBean
+import seng468project.beans.UserCommandTypeBean
 
 @Transactional
 class CommandHandlerService {
@@ -79,10 +80,39 @@ class CommandHandlerService {
                     log.debug("this is the CANCEL_SET_SELL function")
                     break
                 case "DUMPLOG":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "DUMPLOG",
+                            "",
+                            "",
+                            commandBean.parameterList[0],
+                            "0.00"
+                    )
+                    // get the corresponding formatted XML block
+                    String str = auditService.getUserCommandString(obj)
+                    // save to db
+                    new LogHistory(User.get(0), str).save()
                     System.out.println("command handler dumplog")
                     res = auditService.dumpLog(commandBean.parameterList[0])
                     break
                 case "DISPLAY_SUMMARY":
+                    System.out.println("DISPLAY_SUMMARY COMMAND")
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "DISPLAY_SUMMARY",
+                            commandBean.parameterList[0],
+                            "",
+                            "",
+                            "0.00"
+                    )
+                    // get the corresponding formatted XML block
+                    String str = auditService.getUserCommandString(obj)
+                    // save to db
+                    new LogHistory(user, str).save()
                     log.debug("this is the DISPLAY_SUMMARY function")
                     break
             }
