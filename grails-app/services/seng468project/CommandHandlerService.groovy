@@ -93,8 +93,7 @@ class CommandHandlerService {
                     // get the corresponding formatted XML block
                     String str = auditService.getUserCommandString(obj)
                     // save to db
-                    new LogHistory(User.get(0), str).save()
-                    System.out.println("command handler dumplog")
+                    new LogHistory(User.get(1), str).save()
                     res = auditService.dumpLog(commandBean.parameterList[0])
                     break
                 case "DISPLAY_SUMMARY":
