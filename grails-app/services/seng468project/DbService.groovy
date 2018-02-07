@@ -157,11 +157,12 @@ class DbService {
         } as User
 
         if(!row) {
-            return [0,0]
+                return [0,0]
         }else{
             if(row.stockShareMap[symbol]){
                 return [1,Integer.parseInt(row.stockShareMap[symbol] as String)]
             }else{
+                row.stockShareMap[symbol] = "0"
                 return [1,0]
             }
 

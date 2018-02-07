@@ -593,7 +593,7 @@ class TransactionService {
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         // check user has sufficient shares
-        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell) {
+        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell.intValueExact()) {
             auditService.saveErrorEvent(user,obj,"not enough shares to sell")
             return "not enough shares to sell"
         }
@@ -602,7 +602,7 @@ class TransactionService {
         //TODO: need to implement another map for reservedshares
         dbService.removeStockShares(user.username,stockSymbol,sharesToSell.intValueExact())
 
-        record.reservedShares = sharesToSell
+        record.reservedShares = sharesToSell.intValueExact()
         record.triggerPrice = amount
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
         record.save()
