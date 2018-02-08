@@ -35,6 +35,20 @@ class CommandHandlerService {
                     res = dbService.addAmount(commandBean.parameterList[0],commandBean.parameterList[1], transactionNum)
                     break
                 case "QUOTE":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "QUOTE",
+                            user.username,
+                            commandBean.parameterList[1],
+                            "",
+                            "0.00"
+                    )
+                    // get the corresponding formatted XML block
+                    String str = auditService.getUserCommandString(obj)
+                    // save to db
+                    new LogHistory(User.get(1), str).save()
                     res = quoteService.getQuote(user, commandBean.parameterList[1], transactionNum)
                     break
                 case "BUY":
