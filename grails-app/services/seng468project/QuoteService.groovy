@@ -13,7 +13,7 @@ class QuoteService {
 
     CSocket client = new CSocket()
     String ipaddress = "192.168.1.152"
-    int port = 4445
+    int port = 4447
     Boolean test = false
 
     def getQuote(User user, String symbol, int transactionNum) {

@@ -70,7 +70,8 @@ class TransactionService {
             }
         }
         def transaction = Transaction.createCriteria().get {
-            eq('dateCreated', lastestTransactionTime )
+            eq('dateCreated', lastestTransactionTime)
+            eq('user',user)
         } as Transaction
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -149,6 +150,7 @@ class TransactionService {
         }
         def transaction = Transaction.createCriteria().get {
             eq('dateCreated', lastestTransactionTime )
+            eq('user', user )
         } as Transaction
 
         UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -259,6 +261,7 @@ class TransactionService {
         }
         def transaction = Transaction.createCriteria().get {
             eq('dateCreated', lastestTransactionTime )
+            eq('user', user )
         } as Transaction
 
         if(!transaction) {
@@ -334,6 +337,7 @@ class TransactionService {
         }
         def transaction = Transaction.createCriteria().get {
             eq('dateCreated', lastestTransactionTime )
+            eq('user', user )
         } as Transaction
         if(!transaction) {
             auditService.saveErrorEvent(user,obj,"You dont have an active transaction")
