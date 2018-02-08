@@ -97,7 +97,6 @@ class CommandHandlerService {
                     res = auditService.dumpLog(commandBean.parameterList[0])
                     break
                 case "DISPLAY_SUMMARY":
-                    System.out.println("DISPLAY_SUMMARY COMMAND")
                     UserCommandTypeBean obj = new UserCommandTypeBean(
                             System.currentTimeMillis(),
                             "TRANSACTION SERVER: ZaaS",
@@ -112,7 +111,8 @@ class CommandHandlerService {
                     String str = auditService.getUserCommandString(obj)
                     // save to db
                     new LogHistory(user, str).save()
-                    log.debug("this is the DISPLAY_SUMMARY function")
+
+                    res = auditService.displaySummary(user)
                     break
             }
         }

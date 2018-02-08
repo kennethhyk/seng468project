@@ -47,6 +47,48 @@ class AuditService {
         return fileContent
     }
 
+    String displaySummary(User usr){
+        String str = "Balance: " + usr.balance.toString() + '\n' +
+                "Reserved balance: " + usr.reservedBalance.toString() + '\n'
+
+        str += "Stocks owned: {\n"
+        for (stock in usr.stockShareMap){
+            str += " - " + stock.key + " : " + stock.value + "\n"
+        }
+        str += "}\n\n"
+
+        str += "Transaction records: {\n"
+        usr.transactionList.each {
+            str += "\t[\n" +
+                    "\t\tTime: " + it.dateCreated + "\n" +
+                    "\t\tTransaction status: " + it.status + "\n" +
+                    "\t\tQuoted price: " + it.quotedPrice + "\n" +
+                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
+                    "\t\tAmount:" + it.amount + "\n" +
+                    "\t]\n"
+        }
+        str += "}\n\n"
+
+        def triggers = TransactionTrigger.createCriteria().list{
+            eq 'user',usr
+        } as List<TransactionTrigger>
+
+        str += "Trigger records: {\n"
+        triggers.each{
+            str += "\t[\n" +
+                    "\t\tBuy/sell amount: " + it.buySellAmount + "\n" +
+                    "\t\tTrigger status: " + it.status + "\n" +
+                    "\t\tTrigger price: " + it.triggerPrice + "\n" +
+                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
+                    "\t]\n"
+        }
+        str += "}\n\n"
+
+        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
+        log.info(str)
+        return str
+    }
+
     def auditUserCommand(UserCommandTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)

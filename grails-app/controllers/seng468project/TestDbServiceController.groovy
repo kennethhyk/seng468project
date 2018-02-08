@@ -114,14 +114,14 @@ class TestDbServiceController {
         } as User
 
         String expected0 = "you son't have enough money"
-        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("1194.29")).equals(expected0)){
+        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("1194.29"),1).equals(expected0)){
             log.info("setBuyAmount not enough money test PASSED!")
         }else{
             log.error('setBuyAmount not enough money test')
         }
 
         String expected = " Amount: '194.29' is set for stockSymbol: 'ABC', please also set trigger"
-        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("194.29")).equals(expected)){
+        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("194.29"),1).equals(expected)){
             log.info("setBuyAmount test1 PASSED!")
         }else{
             log.error('setBuyAmount')
@@ -130,7 +130,7 @@ class TestDbServiceController {
         if(user.balance.toString() != "205.70" || user.reservedBalance.toString() != "194.29") log.error("set_buy calculation error")
 
         String expected1 = "TransactionTrigger for ABC already exists"
-        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("1111.11")).equals(expected1)){
+        if(transactionService.setBuyAmount(user,'ABC',new BigDecimal("1111.11"),1).equals(expected1)){
             log.info("setBuyAmount duplicate test PASSED!")
         }else{
             log.error('setBuyAmount duplicate test')
@@ -138,14 +138,14 @@ class TestDbServiceController {
 
 
         String expected2 = "no trigger record found"
-        if(transactionService.cancelSetBuy(user,'A').equals(expected2)){
+        if(transactionService.cancelSetBuy(user,'A',1).equals(expected2)){
             log.info("cancelSetBuy no record test PASSED!")
         }else{
             log.error('cancelSetBuy no record test')
         }
 
         String expected3 = "set_buy canceled"
-        if(transactionService.cancelSetBuy(user,'ABC').equals(expected3)){
+        if(transactionService.cancelSetBuy(user,'ABC',1).equals(expected3)){
             if(transactionService.triggerExists(user,'ABC',"BUY")){
                 log.error('cancelSetBuy test')
             }else{
@@ -159,7 +159,7 @@ class TestDbServiceController {
         if(user.balance.toString() != "399.99" || user.reservedBalance.toString() != "0.00") log.error("cancel_set_buy calculation error")
 
         String expected4 = "no record found, please set buy amount first"
-        if(transactionService.setBuyTrigger(user,'ABC',new BigDecimal("10")).equals(expected4)){
+        if(transactionService.setBuyTrigger(user,'ABC',new BigDecimal("10"),1).equals(expected4)){
             log.info('setBuyTrigger no set buy test PASSED!')
         }else{
             log.error('setBuyTrigger no set buy test')
@@ -167,7 +167,7 @@ class TestDbServiceController {
 
 
         String expected41 = " Amount: '194.29' is set for stockSymbol: 'ABC', please also set trigger"
-        String res = transactionService.setBuyAmount(user,'ABC',new BigDecimal("194.29"))
+        String res = transactionService.setBuyAmount(user,'ABC',new BigDecimal("194.29"),1)
         if(res.equals(expected41)){
             log.info("setBuyAmount test2 PASSED!")
         }else{
@@ -177,7 +177,7 @@ class TestDbServiceController {
 
 
         String expected5 = "buy trigger set"
-        if(transactionService.setBuyTrigger(user,'ABC',new BigDecimal("10")).equals(expected5)){
+        if(transactionService.setBuyTrigger(user,'ABC',new BigDecimal("10"),1).equals(expected5)){
             log.info('setBuyTrigger test PASSED!')
         }else{
             log.error('setBuyTrigger test')
@@ -200,7 +200,7 @@ class TestDbServiceController {
             log.error("setBuyTrigger set wrong status")
         }
 
-        if(transactionService.cancelSetBuy(user,'ABC').equals(expected3)){
+        if(transactionService.cancelSetBuy(user,'ABC',1).equals(expected3)){
             if(transactionService.triggerExists(user,'ABC',"BUY")){
                 log.error('cancelSetBuy test cancel trigger')
             }else{
@@ -218,14 +218,14 @@ class TestDbServiceController {
          **********************************************************/
 
         String expected6 = " Amount: '194.29' is set for stockSymbol: 'ABC', please also set trigger"
-        if(transactionService.setSellAmount(user,'ABC',new BigDecimal("194.29")).equals(expected6)){
+        if(transactionService.setSellAmount(user,'ABC',new BigDecimal("194.29"),1).equals(expected6)){
             log.info("setSellAmount test1 PASSED!")
         }else{
             log.error('setSellAmount')
         }
 
         String expected7 = "TransactionTrigger for ABC already exists"
-        String res12 = transactionService.setSellAmount(user,'ABC',new BigDecimal("1111.11"))
+        String res12 = transactionService.setSellAmount(user,'ABC',new BigDecimal("1111.11"),1)
         if((res12).equals(expected7)){
             log.info("setBuyAmount duplicate test PASSED!")
         }else{
@@ -233,14 +233,14 @@ class TestDbServiceController {
         }
 
         String expected8 = "no trigger record found"
-        if(transactionService.cancelSetSell(user,'A').equals(expected8)){
+        if(transactionService.cancelSetSell(user,'A',1).equals(expected8)){
             log.info("cancelSetSell no record test PASSED!")
         }else{
             log.error('cancelSetSell no record test')
         }
 
         String expected9 = "set_sell canceled"
-        if(transactionService.cancelSetSell(user,'ABC').equals(expected9)){
+        if(transactionService.cancelSetSell(user,'ABC',1).equals(expected9)){
             if(transactionService.triggerExists(user,'ABC',"SELL")){
                 log.error('cancelSetBuy test, didnt delete record')
             }else{
@@ -251,7 +251,7 @@ class TestDbServiceController {
         }
 
         String expected10 = "no record found, please set sell amount first"
-        String res13 = transactionService.setSellTrigger(user,'ABC',new BigDecimal("10"))
+        String res13 = transactionService.setSellTrigger(user,'ABC',new BigDecimal("10"),1)
         if(res13.equals(expected10)){
             log.info('setSellTrigger no set buy test PASSED!')
         }else{
@@ -259,14 +259,14 @@ class TestDbServiceController {
         }
 
         String expected11 = " Amount: '194.29' is set for stockSymbol: 'ABC', please also set trigger"
-        if(transactionService.setSellAmount(user,'ABC',new BigDecimal("194.29")).equals(expected11)){
+        if(transactionService.setSellAmount(user,'ABC',new BigDecimal("194.29"),1).equals(expected11)){
             log.info("setSellAmount test1 PASSED!")
         }else{
             log.error('setSellAmount')
         }
 
         String expected20 = "not enough shares to sell"
-        String res14 = transactionService.setSellTrigger(user,'ABC',new BigDecimal("1"))
+        String res14 = transactionService.setSellTrigger(user,'ABC',new BigDecimal("1"),1)
         if(res14.equals(expected20)){
             log.info('setSellTrigger not enough share test PASSED!')
         }else{
@@ -274,7 +274,7 @@ class TestDbServiceController {
         }
 
         String expected12 = "sell trigger set"
-        if(transactionService.setSellTrigger(user,'ABC',new BigDecimal("10")).equals(expected12)){
+        if(transactionService.setSellTrigger(user,'ABC',new BigDecimal("10"),1).equals(expected12)){
             log.info('setSellTrigger test PASSED!')
         }else{
             log.error('setSellTrigger test')
@@ -300,7 +300,7 @@ class TestDbServiceController {
         }
 
         String expected15 = "set_sell canceled"
-        if(transactionService.cancelSetSell(user,'ABC').equals(expected15)){
+        if(transactionService.cancelSetSell(user,'ABC',1).equals(expected15)){
             if(transactionService.triggerExists(user,'ABC',"SELL")){
                 log.error('cancelSetBuy test, didnt delete record')
             }else{
@@ -313,6 +313,6 @@ class TestDbServiceController {
         if(user.stockShareMap['ABC'] != "80") log.error("share reservation error")
 
 
-        auditService.dumpLog("ws_test","./logFile.xml")
+        auditService.dumpLog("./logFile.xml")
     }
 }
