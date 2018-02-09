@@ -18,7 +18,7 @@ enum CommandEnum {
     SET_SELL_AMOUNT(3),
     SET_SELL_TRIGGER(3),
     CANCEL_SET_SELL(2),
-    DUMPLOG(2),
+    DUMPLOG(1),
     DISPLAY_SUMMARY(1)
 
     private int numberOfParameters
