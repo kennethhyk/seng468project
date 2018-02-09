@@ -38,7 +38,7 @@ class TransactionService {
 
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             auditService.saveErrorEvent(user, obj, "you don't have enough money")
-            log.info("you don't have enough money")
+//            log.info("you don't have enough money")
             return "you don't have enough money"
         }
         Transaction transaction = new Transaction(
@@ -49,7 +49,7 @@ class TransactionService {
                 amount: amountPrice
         ).save()
 
-        log.info("User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm")
+//        log.info("User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm")
         return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
 
@@ -80,17 +80,17 @@ class TransactionService {
 
         if(!transaction) {
             auditService.saveErrorEvent(user,obj,"No active buy was found for user $user.username")
-            log.info("No active buy was found for user $user.username")
+//            log.info("No active buy was found for user $user.username")
             return "No active buy was found for user $user.username"
         }
         if(user.realBalance() < transaction.amount) {
             auditService.saveErrorEvent(user,obj,"you don't have enough money")
-            log.info("you don't have enough money")
+//            log.info("you don't have enough money")
             return "you don't have enough money"
         }
         if(transaction.amount < transaction.quotedPrice){
             auditService.saveErrorEvent(user,obj,"your purchase amount wont be able to buy one share")
-            log.info("your purchase amount wont be able to buy one share")
+//            log.info("your purchase amount wont be able to buy one share")
             return "your purchase amount wont be able to buy one share"
         }
 
@@ -114,7 +114,7 @@ class TransactionService {
         new LogHistory(user, str).save()
 
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
-        log.info(res)
+//        log.info(res)
         return res
     }
 
@@ -172,7 +172,7 @@ class TransactionService {
 
         if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
             auditService.saveErrorEvent(user,obj,"you don't have enough share")
-            log.info("you don't have enough share")
+//            log.info("you don't have enough share")
             return "you don't have enough share"
         }
         Transaction transaction = new Transaction(
@@ -183,7 +183,7 @@ class TransactionService {
                 amount: sharesToSell
         ).save()
 
-        log.info("User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
+//        log.info("User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm")
         return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
 
@@ -214,12 +214,12 @@ class TransactionService {
 
         if(!transaction) {
             auditService.saveErrorEvent(user,obj,"No active sell was found for user $user.username")
-            log.info("No active sell was found for user $user.username")
+//            log.info("No active sell was found for user $user.username")
             return "No active sell was found for user $user.username"
         }
         if((user.stockShareMap[transaction.stockSymbol] as Integer) < transaction.amount) {
             auditService.saveErrorEvent(user,obj,"you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
-            log.info("you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
+//            log.info("you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
             return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
         }
 
@@ -243,7 +243,7 @@ class TransactionService {
         new LogHistory(user, str).save()
 
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
-        log.info(res)
+//        log.info(res)
         return res
     }
 

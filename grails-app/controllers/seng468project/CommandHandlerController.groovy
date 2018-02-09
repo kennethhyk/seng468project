@@ -11,7 +11,7 @@ class CommandHandlerController {
             def res = request.JSON
             String commandString = res.command
             int transactionNum = res.transaction as Integer
-            log.info("command recieved: $commandString")
+//            log.info("command recieved: $commandString")
             String response = commandHandlerService.commandHandling(commandString, transactionNum)
             render contentType: "application/json", text: "[{'content':'command recieved $commandString', 'res': '$response'}]"
 //        }

@@ -84,8 +84,8 @@ class AuditService {
         }
         str += "}\n\n"
 
-        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
-        log.info(str)
+//        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
+//        log.info(str)
         return str
     }
 

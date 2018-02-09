@@ -13,7 +13,7 @@ class CommandHandlerService {
     def auditService
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
-        log.info(command)
+//        log.info(command)
         List<String> aCommand = command.split(",")
         CommandBean commandBean = new CommandBean(aCommand)
         return commandBean
@@ -24,10 +24,10 @@ class CommandHandlerService {
         CommandBean commandBean = parseCommandAndCreateCommandBean(command)
         if(commandBean.command == null) {
             System.out.println("Command $command is not recognized")
-            log.info("Command $command is not recognized")
+//            log.info("Command $command is not recognized")
         } else if(commandBean.parameterList == null) {
                 System.out.println("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
-                log.info("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
+//                log.info("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
             } else {
                 User user = User.findByUsername(commandBean.parameterList[0] as String)
                 switch(commandBean.command as String) {
@@ -191,7 +191,7 @@ class CommandHandlerService {
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
                     res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
-                    log.debug("this is the CANCEL_SET_BUY function")
+//                    log.debug("this is the CANCEL_SET_BUY function")
                     break
 
                 case "SET_BUY_TRIGGER":
@@ -208,7 +208,7 @@ class CommandHandlerService {
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
                     res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
-                    log.debug("this is the SET_BUY_TRIGGER function")
+//                    log.debug("this is the SET_BUY_TRIGGER function")
                     break
 
                 case "SET_SELL_AMOUNT":
