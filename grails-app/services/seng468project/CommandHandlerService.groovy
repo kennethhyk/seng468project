@@ -32,8 +32,21 @@ class CommandHandlerService {
                 User user = User.findByUsername(commandBean.parameterList[0] as String)
                 switch(commandBean.command as String) {
                 case "ADD":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "ADD",
+                            commandBean.parameterList[0],
+                            "",
+                            "",
+                            commandBean.parameterList[1]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = dbService.addAmount(commandBean.parameterList[0],commandBean.parameterList[1], transactionNum)
                     break
+
                 case "QUOTE":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
                             System.currentTimeMillis(),
@@ -51,48 +64,200 @@ class CommandHandlerService {
                     new LogHistory(User.get(1), str).save()
                     res = quoteService.getQuote(user, commandBean.parameterList[1], transactionNum)
                     break
+
                 case "BUY":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "BUY",
+                            user.username,
+                            commandBean.parameterList[1],
+                            "",
+                            commandBean.parameterList[2]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.buy(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
+
                 case "COMMIT_BUY":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "COMMIT_BUY",
+                            user.username,
+                            "",
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.commitBuy(user, transactionNum)
                     break
+
                 case "CANCEL_BUY":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "CANCEL_BUY",
+                            user.username,
+                            "",
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.cancelBuy(user, transactionNum)
                     break
+
                 case "SELL":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SELL",
+                            user.username,
+                            "",
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.sell(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
+
                 case "COMMIT_SELL":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "COMMIT_SELL",
+                            user.username,
+                            "",
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.commitSell(user, transactionNum)
                     break
+
                 case "CANCEL_SELL":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "CANCEL_SELL",
+                            user.username,
+                            "",
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.cancelSell(user, transactionNum)
                     break
+
                 case "SET_BUY_AMOUNT":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SET_BUY_AMOUNT",
+                            user.username,
+                            commandBean.parameterList[1],
+                            "",
+                            commandBean.parameterList[2]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.setBuyAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
-                    log.debug("this is the SET_BUY_AMOUNT function")
                     break
+
                 case "CANCEL_SET_BUY":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "CANCEL_SET_BUY",
+                            commandBean.parameterList[0],
+                            commandBean.parameterList[1],
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
                     log.debug("this is the CANCEL_SET_BUY function")
                     break
+
                 case "SET_BUY_TRIGGER":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SET_BUY_TRIGGER",
+                            commandBean.parameterList[0],
+                            commandBean.parameterList[1],
+                            "",
+                            commandBean.parameterList[2]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     log.debug("this is the SET_BUY_TRIGGER function")
                     break
+
                 case "SET_SELL_AMOUNT":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SET_SELL_AMOUNT",
+                            commandBean.parameterList[0],
+                            commandBean.parameterList[1],
+                            "",
+                            commandBean.parameterList[2]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
-                    log.debug("this is the SET_SELL_AMOUNT function")
                     break
+
                 case "SET_SELL_TRIGGER":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SET_SELL_TRIGGER",
+                            commandBean.parameterList[0],
+                            commandBean.parameterList[1],
+                            "",
+                            commandBean.parameterList[2]
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
-                    log.debug("this is the SET_SELL_TRIGGER function")
                     break
                 case "CANCEL_SET_SELL":
+                    UserCommandTypeBean obj = new UserCommandTypeBean(
+                            System.currentTimeMillis(),
+                            "TRANSACTION SERVER: ZaaS",
+                            transactionNum,
+                            "SET_SELL_TRIGGER",
+                            commandBean.parameterList[0],
+                            commandBean.parameterList[1],
+                            "",
+                            ""
+                    )
+                    String str = auditService.getUserCommandString(obj)
+                    new LogHistory(user, str).save()
                     res = transactionService.cancelSetSell(user, commandBean.parameterList[1], transactionNum)
-                    log.debug("this is the CANCEL_SET_SELL function")
                     break
+
                 case "DUMPLOG":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
                             System.currentTimeMillis(),
