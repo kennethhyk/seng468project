@@ -1,7 +1,7 @@
 FROM openjdk:latest
 
 # set environment options
-ENV JAVA_OPTS="-Dgrails.env=development -Xms64m -Xmx256m -XX:MaxMetaspaceSize=128m"
+ENV JAVA_OPTS="-Xms128m -Xmx512m -XX:MaxMetaspaceSize=512m"
 
 RUN mkdir -p /app
 WORKDIR /app

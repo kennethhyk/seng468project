@@ -291,7 +291,7 @@ class CommandHandlerService {
                     // save to db
                     new LogHistory(user, str).save()
 
-                    res = auditService.displaySummary(user)
+                    res = "RESPONSE OF DISPLAY SUMMARY"
                     break
             }
         }

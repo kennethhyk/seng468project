@@ -10,7 +10,7 @@ class AutoTriggerJob {
 
     def execute() {
         // execute job
-        log.info("-----------------------TRIGGER--------------------")
-        transactionService.checkTrigger()
+        //log.info("-----------------------TRIGGER--------------------")
+        //transactionService.checkTrigger()
     }
 }

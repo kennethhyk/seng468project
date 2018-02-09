@@ -535,7 +535,7 @@ class TransactionService {
 
 
 
-
+    //TODO add back later
     def checkTrigger() {
         def records = TransactionTrigger.createCriteria().list {
             or {
