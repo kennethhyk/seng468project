@@ -274,6 +274,7 @@ class CommandHandlerService {
                     // save to db
                     new LogHistory(User.get(1), str).save()
                     res = auditService.dumpLog(commandBean.parameterList[0])
+                    res = "DUMPLOG DONE!"
                     break
                 case "DISPLAY_SUMMARY":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
