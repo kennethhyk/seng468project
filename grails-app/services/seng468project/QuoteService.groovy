@@ -22,7 +22,7 @@ class QuoteService {
         if(!test){
             client.start( ipaddress, port )
             String res = client.sendMessage(symbol +"," + user.username)
-            //client.stop()
+            client.stop()
             List<String> resList = res.split(",")
             record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
 
