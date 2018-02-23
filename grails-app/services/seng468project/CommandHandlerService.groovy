@@ -78,7 +78,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.buy(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.buy(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
                     break
 
                 case "COMMIT_BUY":
@@ -94,7 +94,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.commitBuy(user, transactionNum)
+                    res = transactionService.commitBuy(user, transactionNum,obj)
                     break
 
                 case "CANCEL_BUY":
@@ -110,7 +110,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.cancelBuy(user, transactionNum)
+                    res = transactionService.cancelBuy(user, transactionNum,obj)
                     break
 
                 case "SELL":
@@ -126,7 +126,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.sell(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.sell(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
                     break
 
                 case "COMMIT_SELL":
@@ -142,7 +142,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.commitSell(user, transactionNum)
+                    res = transactionService.commitSell(user, transactionNum,obj)
                     break
 
                 case "CANCEL_SELL":
@@ -158,7 +158,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.cancelSell(user, transactionNum)
+                    res = transactionService.cancelSell(user, transactionNum,obj)
                     break
 
                 case "SET_BUY_AMOUNT":
@@ -174,7 +174,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.setBuyAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setBuyAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
                     break
 
                 case "CANCEL_SET_BUY":
@@ -190,7 +190,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
+                    res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum,obj)
 //                    log.debug("this is the CANCEL_SET_BUY function")
                     break
 
@@ -207,7 +207,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
 //                    log.debug("this is the SET_BUY_TRIGGER function")
                     break
 
@@ -224,7 +224,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
                     break
 
                 case "SET_SELL_TRIGGER":
@@ -240,7 +240,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum,obj)
                     break
                 case "CANCEL_SET_SELL":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -255,7 +255,7 @@ class CommandHandlerService {
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
-                    res = transactionService.cancelSetSell(user, commandBean.parameterList[1], transactionNum)
+                    res = transactionService.cancelSetSell(user, commandBean.parameterList[1], transactionNum,obj)
                     break
 
                 case "DUMPLOG":

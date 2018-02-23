@@ -23,17 +23,8 @@ class TransactionService {
         return true
     }
 
-    String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "BUY",
-                user.username,
-                stockSymbol,
-                "",
-                amountPrice.toString()
-        )
+    String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum, UserCommandTypeBean obj) {
+
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
@@ -53,17 +44,7 @@ class TransactionService {
         return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
 
-    String commitBuy(User user, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "COMMIT_BUY",
-                user.username,
-                "",
-                "",
-                ""
-        )
+    String commitBuy(User user, int transactionNum,UserCommandTypeBean obj) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -118,17 +99,7 @@ class TransactionService {
         return res
     }
 
-    String cancelBuy(User user, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "CANCEL_BUY",
-                user.username,
-                "",
-                "",
-                ""
-        )
+    String cancelBuy(User user, int transactionNum, UserCommandTypeBean obj) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -154,17 +125,7 @@ class TransactionService {
         return "Canceled successfully"
     }
 
-    String sell(User user, String stockSymbol, BigDecimal sellPriceAmount, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SELL",
-                user.username,
-                "",
-                "",
-                ""
-        )
+    String sell(User user, String stockSymbol, BigDecimal sellPriceAmount, int transactionNum,UserCommandTypeBean obj) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
         BigDecimal sharesCanSell = sellPriceAmount/quote.price
@@ -187,17 +148,7 @@ class TransactionService {
         return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
 
-    String commitSell(User user, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "COMMIT_SELL",
-                user.username,
-                "",
-                "",
-                ""
-        )
+    String commitSell(User user, int transactionNum,UserCommandTypeBean obj) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -247,17 +198,7 @@ class TransactionService {
         return res
     }
 
-    String cancelSell(User user, int transactionNum) {
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "CANCEL_SELL",
-                user.username,
-                "",
-                "",
-                ""
-        )
+    String cancelSell(User user, int transactionNum,UserCommandTypeBean obj) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
@@ -311,17 +252,7 @@ class TransactionService {
         return false
     }
 
-    String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_BUY_AMOUNT",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
+    String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum,UserCommandTypeBean obj){
         // if trigger already exitst, don't proceed any further
         if(triggerExists(user,stockSymbol,"BUY")) {
             auditService.saveErrorEvent(user,obj, "TransactionTrigger for $stockSymbol already exists")
@@ -356,17 +287,7 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
-    String cancelSetBuy(User user,String stockSymbol, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "CANCEL_SET_BUY",
-                user.username,
-                stockSymbol,
-                "",
-                ""
-        )
+    String cancelSetBuy(User user,String stockSymbol, int transactionNum,UserCommandTypeBean obj){
         // find the trigger
         def record = TransactionTrigger.createCriteria().get{
             and {
@@ -395,17 +316,7 @@ class TransactionService {
         return "set_buy canceled"
     }
 
-    String setBuyTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_BUY_TRIGGER",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
+    String setBuyTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum,UserCommandTypeBean obj){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
@@ -425,17 +336,7 @@ class TransactionService {
     }
 
     //TODO: add function to handle buy trigger
-    String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_SELL_AMOUNT",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
+    String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum,UserCommandTypeBean obj){
         // check no other triggers for the same symbol
         if(triggerExists(user,stockSymbol,"SELL")) {
             auditService.saveErrorEvent(user,obj,"TransactionTrigger for $stockSymbol already exists")
@@ -457,17 +358,7 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
-    String setSellTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_SELL_TRIGGER",
-                user.username,
-                stockSymbol,
-                "",
-                amount.toString()
-        )
+    String setSellTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum,UserCommandTypeBean obj){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
@@ -500,17 +391,7 @@ class TransactionService {
         return "sell trigger set"
     }
 
-    String cancelSetSell(User user,String stockSymbol, int transactionNum){
-        UserCommandTypeBean obj = new UserCommandTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "SET_SELL_TRIGGER",
-                user.username,
-                stockSymbol,
-                "",
-                ""
-        )
+    String cancelSetSell(User user,String stockSymbol, int transactionNum,UserCommandTypeBean obj){
         TransactionTrigger record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
