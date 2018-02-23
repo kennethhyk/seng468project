@@ -75,7 +75,7 @@ String getDockerImageName() {
 task buildDockerImage(type:Exec) {
     group = 'docker'
     description = 'Build a docker image'
-    commandLine 'docker', 'build', '-f', 'build/docker/Dockerfile', '-t', "${dockerImageName}", 'build/docker'
+    commandLine 'docker' ,'build', '--no-cache',  '-f', 'build/docker/Dockerfile', '-t', "${dockerImageName}", 'build/docker'
 
     doFirst {
         println ">> Creating image: ${dockerImageName}"

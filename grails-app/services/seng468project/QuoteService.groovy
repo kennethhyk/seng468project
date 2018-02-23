@@ -21,13 +21,14 @@ class QuoteService {
     def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response
         QuoteServerTypeBean record
+        System.out.println("getQuote")
         if(!test){
             if(!quoteCacheService.lookupEntry(symbol)){
                 client.start( ipaddress, port )
                 res = client.sendMessage(symbol +"," + user.username)
                 client.stop()
+                System.out.println("try to add to redis")
                 quoteCacheService.addNewEntry(symbol, res)
-
             }else{
                 res = quoteCacheService.retrieveValue(symbol)
             }
