@@ -1,8 +1,12 @@
 package seng468project
 
 import grails.transaction.Transactional
+import redis.clients.jedis.Jedis
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
+import seng468project.helpers.JedisDB
 
 import java.sql.Timestamp
 
@@ -10,8 +14,8 @@ import java.sql.Timestamp
 class QuoteService {
 
     def auditService
-    def quoteCacheService
 
+    JedisDB jedis = new JedisDB()
     CSocket client = new CSocket()
     String ipaddress = "192.168.1.152"
     int port = 4447
@@ -23,14 +27,14 @@ class QuoteService {
         QuoteServerTypeBean record
         System.out.println("getQuote")
         if(!test){
-            if(!quoteCacheService.lookupEntry(symbol)){
+            if(!jedis.lookupEntry(symbol)){
                 client.start( ipaddress, port )
                 res = client.sendMessage(symbol +"," + user.username)
                 client.stop()
                 System.out.println("try to add to redis")
-                quoteCacheService.addNewEntry(symbol, res)
+                jedis.addNewEntry(symbol, res)
             }else{
-                res = quoteCacheService.retrieveValue(symbol)
+                res = jedis.retrieveValue(symbol)
             }
 
             List<String> resList = res.split(",")
