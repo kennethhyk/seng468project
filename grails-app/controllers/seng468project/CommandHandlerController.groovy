@@ -2,8 +2,7 @@ package seng468project
 
 class CommandHandlerController {
 
-    static scope = "prototype"
-
+    def scope = "prototype"
     def commandHandlerService
     def dbService
 

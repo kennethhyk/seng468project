@@ -5,44 +5,40 @@ import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 import seng468project.helpers.JedisDB
 
+import java.sql.Timestamp
+
 @Transactional
 class QuoteService {
 
-    static scope = "request"
-
     def auditService
-    def socketService
-
-    JedisDB jedis = new JedisDB()
-    CSocket client = new CSocket()
-//    String ipaddress = "192.168.1.152"
-//    int port = 4447
-    String ipaddress = "192.168.1.149"
-    int port = 1234
-    Boolean test = false
+    static scope = 'prototype'
 
     def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response
-        QuoteServerTypeBean record
+        JedisDB jedis = new JedisDB()
+        CSocket client = new CSocket()
+        String ipaddress = "192.168.1.152"
+        int port = 4447
+        Boolean test = false
         String res
-        System.out.println("easy win101")
+
+        QuoteServerTypeBean record
         if(!test){
-            client.start( ipaddress, port )
-            res = client.sendMessage(symbol +"," + user.username)
-            client.stop()
-//            if(!jedis.lookupEntry(symbol)){
-////                client.start( ipaddress, port )
-////                res = client.sendMessage(symbol +"," + user.username)
-////                client.stop()
-//                res = socketService.quoteGetQueue(symbol +"," + user.username)
-//                jedis.addNewEntry(symbol, res)
-//            }else{
-//                res = jedis.retrieveValue(symbol)
-//            }
-            List<String> resList = res.split(",")
-            record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-            String str = auditService.getQuoteServerString(record)
-            new LogHistory(user,str).save()
+            if(!jedis.lookupEntry(symbol)){
+                client.start( ipaddress, port )
+                res = client.sendMessage(symbol +"," + user.username)
+                client.stop()
+                jedis.addNewEntry(symbol, res)
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                String str = auditService.getQuoteServerString(record)
+                new LogHistory(user,str).save()
+            }else{
+                res = jedis.retrieveValue(symbol)
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+            }
+
         }else{
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
