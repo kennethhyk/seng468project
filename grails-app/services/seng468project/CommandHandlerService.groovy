@@ -11,6 +11,7 @@ class CommandHandlerService {
     def transactionService
     def dbService
     def auditService
+    def scope = "prototype"
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
 //        log.info(command)
@@ -90,7 +91,7 @@ class CommandHandlerService {
                             user.username,
                             "",
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -106,7 +107,7 @@ class CommandHandlerService {
                             user.username,
                             "",
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -122,7 +123,7 @@ class CommandHandlerService {
                             user.username,
                             "",
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -138,7 +139,7 @@ class CommandHandlerService {
                             user.username,
                             "",
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -154,7 +155,7 @@ class CommandHandlerService {
                             user.username,
                             "",
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -186,7 +187,7 @@ class CommandHandlerService {
                             commandBean.parameterList[0],
                             commandBean.parameterList[1],
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -251,7 +252,7 @@ class CommandHandlerService {
                             commandBean.parameterList[0],
                             commandBean.parameterList[1],
                             "",
-                            ""
+                            "0.00"
                     )
                     String str = auditService.getUserCommandString(obj)
                     new LogHistory(user, str).save()
@@ -264,7 +265,7 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "DUMPLOG",
-                            "",
+                            User.get(1).username,
                             "",
                             commandBean.parameterList[0],
                             "0.00"

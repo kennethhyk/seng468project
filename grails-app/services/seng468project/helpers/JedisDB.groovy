@@ -28,9 +28,12 @@ class JedisDB {
     def addNewEntry(String key, String quote_respond){
         jedis.set(key, quote_respond)
         jedis.expire(key, 60)
+        jedis.close()
     }
 
     def retrieveValue(String key){
-        return jedis.get(key)
+        String tmp = jedis.get(key)
+        jedis.close()
+        return tmp
     }
 }

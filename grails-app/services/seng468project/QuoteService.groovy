@@ -1,9 +1,6 @@
 package seng468project
 
 import grails.transaction.Transactional
-import redis.clients.jedis.Jedis
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 import seng468project.helpers.JedisDB
@@ -14,33 +11,33 @@ import java.sql.Timestamp
 class QuoteService {
 
     def auditService
-
-    JedisDB jedis = new JedisDB()
-    CSocket client = new CSocket()
-    String ipaddress = "192.168.1.152"
-    int port = 4447
-    Boolean test = false
-    String res
+    static scope = 'prototype'
 
     def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response
+        JedisDB jedis = new JedisDB()
+        CSocket client = new CSocket()
+        String ipaddress = "192.168.1.152"
+        int port = 4447
+        Boolean test = false
+        String res
+
         QuoteServerTypeBean record
-        System.out.println("getQuote")
         if(!test){
             if(!jedis.lookupEntry(symbol)){
                 client.start( ipaddress, port )
                 res = client.sendMessage(symbol +"," + user.username)
                 client.stop()
-                System.out.println("try to add to redis")
                 jedis.addNewEntry(symbol, res)
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                String str = auditService.getQuoteServerString(record)
+                new LogHistory(user,str).save()
             }else{
                 res = jedis.retrieveValue(symbol)
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
             }
-
-            List<String> resList = res.split(",")
-            record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-            String str = auditService.getQuoteServerString(record)
-            new LogHistory(user,str).save()
 
         }else{
             record = new QuoteServerTypeBean(
