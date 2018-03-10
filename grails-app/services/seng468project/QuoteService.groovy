@@ -18,7 +18,7 @@ class QuoteService {
         CSocket client = new CSocket()
         String ipaddress = "192.168.1.152"
         int port = 4447
-        Boolean test = false
+        Boolean test = true
         String res
 
         QuoteServerTypeBean record
@@ -39,18 +39,29 @@ class QuoteService {
             }
 
         }else{
-            record = new QuoteServerTypeBean(
-                System.currentTimeMillis(),
-                "quoteserve.seng:"+ (port as String),
-                transactionNum,
-                "21.4",
-                symbol,
-                user.username,
-                123192 as Long,
-                "this is the cryptokey"
-            )
-            String str = auditService.getQuoteServerString(record)
-            new LogHistory(user,str).save()
+            if(!jedis.lookupEntry(symbol)){
+                record = new QuoteServerTypeBean(
+                        System.currentTimeMillis(),
+                        "quoteserve.seng:"+ (port as String),
+                        transactionNum,
+                        "21.4",
+                        symbol,
+                        user.username,
+                        123192 as Long,
+                        "this is the cryptokey"
+                )
+                res = "21.4,"+ symbol+","+user.username+",123192,thisIsTheCryptokey"
+                jedis.addNewEntry(symbol, res)
+                String str = auditService.getQuoteServerString(record)
+                new LogHistory(user,str).save()
+            }else{
+                res = jedis.retrieveValue(symbol)
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                new LogHistory(user,auditService.getQuoteServerString(record)) .save()
+            }
+
+
         }
 
         return record
