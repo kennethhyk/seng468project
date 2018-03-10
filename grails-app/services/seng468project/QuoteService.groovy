@@ -11,7 +11,6 @@ import java.sql.Timestamp
 class QuoteService {
 
     def auditService
-    static scope = 'prototype'
 
     def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response

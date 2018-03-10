@@ -200,23 +200,6 @@ class AuditService {
                 "   </systemEvent>\n"
     }
 
-    def auditErrorEvents(UserCommandTypeBean obj, String err_msg){
-        BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
-        writer.write(header)
-        writer.write("<ErrorEventType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "   <errorMessage>" + err_msg+ "</errorMessage>" +
-                "</ErrorEventType>\n")
-        writer.close()
-    }
-
     String saveErrorEvent(User user, UserCommandTypeBean obj, String err_msg){
          String str = "<errorEvent>\n" +
                 "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +

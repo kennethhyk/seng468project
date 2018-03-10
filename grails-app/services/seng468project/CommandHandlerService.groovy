@@ -11,7 +11,6 @@ class CommandHandlerService {
     def transactionService
     def dbService
     def auditService
-    def scope = "prototype"
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
 //        log.info(command)
