@@ -13,7 +13,6 @@ class CommandHandlerService {
     def auditService
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
-//        log.info(command)
         List<String> aCommand = command.split(",")
         CommandBean commandBean = new CommandBean(aCommand)
         return commandBean

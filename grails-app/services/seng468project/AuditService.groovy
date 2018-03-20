@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
+import grails.plugins.rest.client.RestBuilder
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -250,5 +251,15 @@ class AuditService {
     def finishedLogging(){
         writer.write(footer)
         writer.close()
+    }
+
+    def dispatch(String user1, String log1) {
+        def resp = RestBuilder.post("http://repo.grails.org/grails/api/security/groups/test-group"){
+            contentType "application/json"
+            json {
+                user = user1
+                log = log1
+            }
+        }
     }
 }

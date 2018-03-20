@@ -18,7 +18,7 @@ class QuoteService {
         CSocket client = new CSocket()
         String ipaddress = "192.168.1.152"
         int port = 4447
-        Boolean test = false
+        Boolean test = true
         String res
 
         QuoteServerTypeBean record

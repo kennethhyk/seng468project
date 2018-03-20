@@ -1,9 +1,5 @@
 package seng468project
 
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
-import seng468project.enums.TriggerStatusEnum
-
 class BootStrap {
 
     def init = { servletContext ->
