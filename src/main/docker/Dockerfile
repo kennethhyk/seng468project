@@ -1,7 +1,7 @@
 FROM openjdk:latest
 
 # set environment options
-ENV JAVA_OPTS="-Xms128m -Xmx512m -XX:MaxMetaspaceSize=512m"
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:MaxMetaspaceSize=512m"
 
 RUN mkdir -p /app
 WORKDIR /app
