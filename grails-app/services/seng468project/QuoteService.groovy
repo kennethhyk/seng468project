@@ -30,8 +30,7 @@ class QuoteService {
                 jedis.addNewEntry(symbol, res)
                 List<String> resList = res.split(",")
                 record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-                String str = auditService.getQuoteServerString(record)
-                new LogHistory(user,str).save()
+                auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
             }else{
                 res = jedis.retrieveValue(symbol)
                 List<String> resList = res.split(",")
@@ -50,7 +49,6 @@ class QuoteService {
                 "this is the cryptokey"
             )
             String str = auditService.getQuoteServerString(record)
-            new LogHistory(user,str).save()
         }
 
         return record

@@ -103,7 +103,7 @@ class TestDbServiceController {
 
         QuoteServerTypeBean obj = new QuoteServerTypeBean(15147648000001,"server1",1,"123.48","ABD","test_user",15147648000002,"500.00")
 
-        auditService.auditQuoteServerRecord(obj)
+//        auditService.auditQuoteServerRecord(obj)
 
         /*************************************************************
          *      TRIGGER SECTION

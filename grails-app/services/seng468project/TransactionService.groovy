@@ -1,9 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
-import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.QuoteServerTypeBean
-import seng468project.beans.UserCommandTypeBean
 import seng468project.enums.TransactionStatusEnum
 import seng468project.enums.TriggerStatusEnum
 
@@ -78,16 +76,16 @@ class TransactionService {
         transaction.status = TransactionStatusEnum.COMMIT_BUY
         transaction.save()
 
-        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "COMMIT_BUY",
-                user.username,
-                (sharesToBuy*transaction.quotedPrice).toString()
-        )
-        String str = auditService.getAccountTransactionString(obj_1)
-        new LogHistory(user, str).save()
+//        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+//                System.currentTimeMillis(),
+//                "TRANSACTION SERVER: ZaaS",
+//                transactionNum,
+//                "COMMIT_BUY",
+//                user.username,
+//                (sharesToBuy*transaction.quotedPrice).toString()
+//        )
+//        String str = auditService.getAccountTransactionString(obj_1)
+//        new LogHistory(user, str).save()
 
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         return res
@@ -172,16 +170,16 @@ class TransactionService {
         transaction.status = TransactionStatusEnum.COMMIT_SELL
         transaction.save()
 
-        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "COMMIT_SELL",
-                user.username,
-                sellPriceAmount.toString()
-        )
-        String str = auditService.getAccountTransactionString(obj_1)
-        new LogHistory(user, str).save()
+//        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+//                System.currentTimeMillis(),
+//                "TRANSACTION SERVER: ZaaS",
+//                transactionNum,
+//                "COMMIT_SELL",
+//                user.username,
+//                sellPriceAmount.toString()
+//        )
+//        String str = auditService.getAccountTransactionString(obj_1)
+//        new LogHistory(user, str).save()
 
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         return res
@@ -433,29 +431,29 @@ class TransactionService {
                 it.user.save()
                 it.status = TriggerStatusEnum.DONE
 
-                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-                        System.currentTimeMillis(),
-                        "TRANSACTION SERVER: ZaaS",
-                        transactionNum,
-                        "BUY_TRIGGERED",
-                        it.user.username,
-                        it.user.reservedBalance.toString()
-                )
-                String str = auditService.getAccountTransactionString(obj_1)
-                new LogHistory(it.user, str).save()
+//                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+//                        System.currentTimeMillis(),
+//                        "TRANSACTION SERVER: ZaaS",
+//                        transactionNum,
+//                        "BUY_TRIGGERED",
+//                        it.user.username,
+//                        it.user.reservedBalance.toString()
+//                )
+//                String str = auditService.getAccountTransactionString(obj_1)
+//                new LogHistory(it.user, str).save()
 
-                UserCommandTypeBean obj = new UserCommandTypeBean(
-                        System.currentTimeMillis(),
-                        "TRANSACTION SERVER: ZaaS",
-                        transactionNum,
-                        "COMMIT_BUY",
-                        it.user.username,
-                        it.stockSymbol,
-                        "",
-                        it.reservedBalance.toString()
-                )
-                String str_1 = auditService.getSystemEventString(obj)
-                new LogHistory(it.user,str_1).save()
+//                UserCommandTypeBean obj = new UserCommandTypeBean(
+//                        System.currentTimeMillis(),
+//                        "TRANSACTION SERVER: ZaaS",
+//                        transactionNum,
+//                        "COMMIT_BUY",
+//                        it.user.username,
+//                        it.stockSymbol,
+//                        "",
+//                        it.reservedBalance.toString()
+//                )
+//                String str_1 = auditService.getSystemEventString(obj)
+//                new LogHistory(it.user,str_1).save()
 
 
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
@@ -465,29 +463,29 @@ class TransactionService {
                 dbService.addAmount(it.user.username,moneyToAdd.toString(), transactionNum)
                 it.status = TriggerStatusEnum.DONE
 
-                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-                        System.currentTimeMillis(),
-                        "TRANSACTION SERVER: ZaaS",
-                        transactionNum,
-                        "SELL_TRIGGERED",
-                        it.user.username,
-                        moneyToAdd.toString()
-                )
-                String str = auditService.getAccountTransactionString(obj_1)
-                new LogHistory(it.user, str).save()
+//                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
+//                        System.currentTimeMillis(),
+//                        "TRANSACTION SERVER: ZaaS",
+//                        transactionNum,
+//                        "SELL_TRIGGERED",
+//                        it.user.username,
+//                        moneyToAdd.toString()
+//                )
+//                String str = auditService.getAccountTransactionString(obj_1)
+//                new LogHistory(it.user, str).save()
 
-                UserCommandTypeBean obj = new UserCommandTypeBean(
-                        System.currentTimeMillis(),
-                        "TRANSACTION SERVER: ZaaS",
-                        transactionNum,
-                        "COMMIT_SELL",
-                        it.user.username,
-                        it.stockSymbol,
-                        "",
-                        moneyToAdd.toString()
-                )
-                String str_1 = auditService.getSystemEventString(obj)
-                new LogHistory(it.user,str_1).save()
+//                UserCommandTypeBean obj = new UserCommandTypeBean(
+//                        System.currentTimeMillis(),
+//                        "TRANSACTION SERVER: ZaaS",
+//                        transactionNum,
+//                        "COMMIT_SELL",
+//                        it.user.username,
+//                        it.stockSymbol,
+//                        "",
+//                        moneyToAdd.toString()
+//                )
+//                String str_1 = auditService.getSystemEventString(obj)
+//                new LogHistory(it.user,str_1).save()
             }
 
         }

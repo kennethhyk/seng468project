@@ -41,8 +41,7 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[1]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = dbService.addAmount(commandBean.parameterList[0],commandBean.parameterList[1], transactionNum)
                     break
 
@@ -58,9 +57,9 @@ class CommandHandlerService {
                             "0.00"
                     )
                     // get the corresponding formatted XML block
-                    String str = auditService.getUserCommandString(obj)
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
+                    auditService.dispatch( User.get(1).username, auditService.getUserCommandString(obj) )
                     // save to db
-                    new LogHistory(User.get(1), str).save()
                     res = quoteService.getQuote(user, commandBean.parameterList[1], transactionNum)
                     break
 
@@ -75,8 +74,8 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[2]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
+
                     res = transactionService.buy(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
 
@@ -91,8 +90,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.commitBuy(user, transactionNum)
                     break
 
@@ -107,8 +105,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.cancelBuy(user, transactionNum)
                     break
 
@@ -123,8 +120,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.sell(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
 
@@ -139,8 +135,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.commitSell(user, transactionNum)
                     break
 
@@ -155,8 +150,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.cancelSell(user, transactionNum)
                     break
 
@@ -171,8 +165,7 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[2]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.setBuyAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
 
@@ -187,8 +180,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
 //                    log.debug("this is the CANCEL_SET_BUY function")
                     break
@@ -204,8 +196,7 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[2]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
 //                    log.debug("this is the SET_BUY_TRIGGER function")
                     break
@@ -221,8 +212,7 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[2]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
 
@@ -237,8 +227,7 @@ class CommandHandlerService {
                             "",
                             commandBean.parameterList[2]
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
                     break
                 case "CANCEL_SET_SELL":
@@ -252,8 +241,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    String str = auditService.getUserCommandString(obj)
-                    new LogHistory(user, str).save()
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.cancelSetSell(user, commandBean.parameterList[1], transactionNum)
                     break
 
@@ -269,9 +257,8 @@ class CommandHandlerService {
                             "0.00"
                     )
                     // get the corresponding formatted XML block
-                    String str = auditService.getUserCommandString(obj)
+                    auditService.dispatch( User.get(1).username, auditService.getUserCommandString(obj) )
                     // save to db
-                    new LogHistory(User.get(1), str).save()
                     res = auditService.dumpLog(commandBean.parameterList[0])
                     res = "DUMPLOG DONE!"
                     break
@@ -287,9 +274,9 @@ class CommandHandlerService {
                             "0.00"
                     )
                     // get the corresponding formatted XML block
-                    String str = auditService.getUserCommandString(obj)
+                    auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     // save to db
-                    new LogHistory(user, str).save()
+
 
                     res = "RESPONSE OF DISPLAY SUMMARY"
                     break

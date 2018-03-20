@@ -29,16 +29,16 @@ class DbService {
         row.balance = row.balance.add(bd_amount)
         row.save()
 
-        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "ADD",
-                userId,
-                amount
-        )
-        String str = auditService.getAccountTransactionString(obj)
-        new LogHistory(row,str).save()
+//        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
+//                System.currentTimeMillis(),
+//                "TRANSACTION SERVER: ZaaS",
+//                transactionNum,
+//                "ADD",
+//                userId,
+//                amount
+//        )
+//        String str = auditService.getAccountTransactionString(obj)
+//        new LogHistory(row,str).save()
         return 1
     }
 

@@ -1,11 +1,12 @@
 package seng468project
 
+import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.plugins.rest.client.RestBuilder
+import groovyx.net.http.AsyncHTTPBuilder
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+//import java.nio.file.Files
+//import java.nio.file.Path
+//import java.nio.file.Paths
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.UserCommandTypeBean
@@ -19,33 +20,34 @@ class AuditService {
     String footer = "\n</log>"
 
     String dumpLog(String filename){
-        String username = null
-        System.out.println("dumplog function")
-        def records
-        String fileContent =""
-        if(username){
-            def user = User.createCriteria().get{
-                eq 'username',username
-            } as User
-
-            records = LogHistory.createCriteria().list {
-                eq 'user',user
-            } as ArrayList<LogHistory>
-        }else{
-            records = LogHistory.createCriteria().list {} as ArrayList<LogHistory>
-        }
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filename))
-        //writer.write(header)
-        fileContent += header
-        records.each{
-//            writer.write(it.xmlBlock)
-            fileContent += it.xmlBlock
-        }
-        //writer.write(footer)
-        fileContent += footer
-        writer.write(fileContent)
-        writer.close()
-        return fileContent
+//        String username = null
+//        System.out.println("dumplog function")
+//        def records
+//        String fileContent =""
+//        if(username){
+//            def user = User.createCriteria().get{
+//                eq 'username',username
+//            } as User
+//
+//            records = LogHistory.createCriteria().list {
+//                eq 'user',user
+//            } as ArrayList<LogHistory>
+//        }else{
+//            records = LogHistory.createCriteria().list {} as ArrayList<LogHistory>
+//        }
+//        BufferedWriter writer = new BufferedWriter(new FileWriter(filename))
+//        //writer.write(header)
+//        fileContent += header
+//        records.each{
+////            writer.write(it.xmlBlock)
+//            fileContent += it.xmlBlock
+//        }
+//        //writer.write(footer)
+//        fileContent += footer
+//        writer.write(fileContent)
+//        writer.close()
+//        return fileContent
+        return ""
     }
 
     String displaySummary(User usr){
@@ -253,13 +255,12 @@ class AuditService {
         writer.close()
     }
 
-    def dispatch(String user1, String log1) {
-        def resp = RestBuilder.post("http://repo.grails.org/grails/api/security/groups/test-group"){
-            contentType "application/json"
-            json {
-                user = user1
-                log = log1
-            }
-        }
+    def dispatch(String user, String log_msg) {
+        def postBody = [user: user, log_msg: log_msg]
+        def http = new AsyncHTTPBuilder(
+                poolSize : 1,
+                uri : 'http://localhost:8080',
+                contentType : JSON )
+        http.post(path: '/audit/save', body: postBody)
     }
 }
