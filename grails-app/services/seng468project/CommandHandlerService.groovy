@@ -259,7 +259,7 @@ class CommandHandlerService {
                     // get the corresponding formatted XML block
                     auditService.dispatch( User.get(1).username, auditService.getUserCommandString(obj) )
                     // save to db
-                    res = auditService.dumpLog(commandBean.parameterList[0])
+//                    res = auditService.dumpLog(commandBean.parameterList[0])
                     res = "DUMPLOG DONE!"
                     break
                 case "DISPLAY_SUMMARY":
