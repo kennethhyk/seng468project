@@ -99,7 +99,7 @@ environments:
     development:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://192.168.1.136:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+            url: jdbc:mysql://192.168.1.150:44445/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
             username : "root"
@@ -112,7 +112,7 @@ environments:
     production:
         dataSource:
             dbCreate: create-drop
-            url: jdbc:mysql://192.168.1.136:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+            url: jdbc:mysql://192.168.1.150:44445/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://172.17.0.2:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
