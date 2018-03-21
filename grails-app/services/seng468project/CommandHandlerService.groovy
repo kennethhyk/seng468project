@@ -58,7 +58,6 @@ class CommandHandlerService {
                     )
                     // get the corresponding formatted XML block
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    auditService.dispatch( User.get(1).username, auditService.getUserCommandString(obj) )
                     // save to db
                     res = quoteService.getQuote(user, commandBean.parameterList[1], transactionNum)
                     break
@@ -251,13 +250,13 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "DUMPLOG",
-                            User.get(1).username,
+                            "zddbuzuoshi",
                             "",
                             commandBean.parameterList[0],
                             "0.00"
                     )
                     // get the corresponding formatted XML block
-                    auditService.dispatch( User.get(1).username, auditService.getUserCommandString(obj) )
+                    auditService.dispatch( "zddbuzuoshi", auditService.getUserCommandString(obj) )
                     // save to db
 //                    res = auditService.dumpLog(commandBean.parameterList[0])
                     res = "DUMPLOG DONE!"
