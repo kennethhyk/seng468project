@@ -120,10 +120,10 @@ environments:
             password : "root"
             properties:
                 jmxEnabled: true
-                initialSize: 5
-                maxActive: 50
+                initialSize: 50
+                maxActive: 1000
                 minIdle: 5
-                maxIdle: 25
+                maxIdle: 10
                 maxWait: 10000
                 maxAge: 600000
                 timeBetweenEvictionRunsMillis: 5000
