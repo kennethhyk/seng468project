@@ -259,7 +259,7 @@ class AuditService {
         def postBody = [user: user, log_msg: log_msg]
         def http = new AsyncHTTPBuilder(
                 poolSize : 1,
-                uri : 'http://localhost:8080',
+                uri : 'http://192.168.1.149',
                 contentType : JSON )
         http.post(path: '/audit/save', body: postBody)
     }
