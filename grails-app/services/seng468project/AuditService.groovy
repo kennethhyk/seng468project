@@ -11,10 +11,10 @@ import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.UserCommandTypeBean
 
-@Transactional
+//@Transactional
 class AuditService {
 
-
+    static transactional = false
     String header = "<?xml version=\"1.0\"?>\n" +
             "<log>\n"
     String footer = "\n</log>"
@@ -216,7 +216,7 @@ class AuditService {
                 "   <errorMessage>" + err_msg+ "</errorMessage>\n" +
                 "</errorEvent>\n"
 
-        new LogHistory(user,str).save()
+//        new LogHistory(user,str).save()
     }
 
     def auditDebug(UserCommandTypeBean obj, String dbg_msg){

@@ -29,10 +29,10 @@ class TestDbServiceController {
             log.error('addAmount')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '1000.00'){
+        if(dbService.getUserBalance('ws_test') == '1000.00'){
             log.info('getUserBalance test1 PASSED!')
         }else{
-            log.error('getUserBalance expected: 1000.00, got: ' + dbService.getUserBalance('ws_test')[1] )
+            log.error('getUserBalance expected: 1000.00, got: ' + dbService.getUserBalance('ws_test') )
         }
 
         if(dbService.removeAmount('ws_test','199.12')){
@@ -41,10 +41,10 @@ class TestDbServiceController {
             log.error('removeAmount')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '800.88'){
+        if(dbService.getUserBalance('ws_test') == '800.88'){
             log.info('getUserBalance test2 PASSED!')
         }else{
-            log.error('getUserBalance expected: 800.88, got: ' + dbService.getUserBalance('ws_test')[1] )
+            log.error('getUserBalance expected: 800.88, got: ' + dbService.getUserBalance('ws_test') )
         }
 
         if(dbService.updateUserBalance('ws_test','500')){
@@ -53,10 +53,10 @@ class TestDbServiceController {
             log.error('updateUserBalance')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '500.00'){
+        if(dbService.getUserBalance('ws_test') == '500.00'){
             log.info('getUserBalance test3 PASSED!')
         }else {
-            log.error('getUserBalance expected: 500.00, got: ' + dbService.getUserBalance('ws_test')[1])
+            log.error('getUserBalance expected: 500.00, got: ' + dbService.getUserBalance('ws_test'))
         }
 
         if(dbService.removeAmount('ws_test','100.01')){
@@ -65,16 +65,16 @@ class TestDbServiceController {
             log.error('removeAmount')
         }
 
-        if(dbService.getUserBalance('ws_test')[1] == '399.99'){
+        if(dbService.getUserBalance('ws_test') == '399.99'){
             log.info('getUserBalance test4 PASSED!')
         }else{
-            log.error('getUserBalance expected: 399.99, got: ' + dbService.getUserBalance('ws_test')[1] )
+            log.error('getUserBalance expected: 399.99, got: ' + dbService.getUserBalance('ws_test') )
         }
 
-        if(dbService.getUserStocks('ws_test','ABC')[1] == 0){
+        if(dbService.getUserStocks('ws_test','ABC') == 0){
             log.info('getUserStocks test1 PASSED!')
         }else{
-            log.error('getUserStocks expected: 0, got: ' + dbService.getUserStocks('ws_test','ABC')[1] )
+            log.error('getUserStocks expected: 0, got: ' + dbService.getUserStocks('ws_test','ABC') )
         }
 
         if(dbService.addStockShares('ws_test','ABC',294)){
@@ -83,10 +83,10 @@ class TestDbServiceController {
             log.error('addStockShares')
         }
 
-        if(dbService.getUserStocks('ws_test','ABC')[1] == 294){
+        if(dbService.getUserStocks('ws_test','ABC') == 294){
             log.info('getUserStocks test2 PASSED!')
         }else{
-            log.error('getUserStocks expected: 294, got: ' + dbService.getUserStocks('ws_test','ABC')[1] )
+            log.error('getUserStocks expected: 294, got: ' + dbService.getUserStocks('ws_test','ABC') )
         }
 
         if(dbService.removeStockShares('ws_test','ABC',214)){
@@ -95,10 +95,10 @@ class TestDbServiceController {
             log.error('removeStockShares')
         }
 
-        if(dbService.getUserStocks('ws_test','ABC')[1] == 80){
+        if(dbService.getUserStocks('ws_test','ABC') == 80){
             log.info('getUserStocks test3 PASSED!')
         }else{
-            log.error('getUserStocks expected: 80, got: ' + dbService.getUserStocks('ws_test','ABC')[1] )
+            log.error('getUserStocks expected: 80, got: ' + dbService.getUserStocks('ws_test','ABC') )
         }
 
         QuoteServerTypeBean obj = new QuoteServerTypeBean(15147648000001,"server1",1,"123.48","ABD","test_user",15147648000002,"500.00")

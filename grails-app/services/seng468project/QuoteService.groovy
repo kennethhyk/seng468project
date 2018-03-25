@@ -1,24 +1,25 @@
 package seng468project
 
+import grails.plugin.dropwizard.metrics.meters.Metered
 import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 import seng468project.helpers.JedisDB
 
-import java.sql.Timestamp
-
-@Transactional
+//@Transactional
 class QuoteService {
 
     def auditService
+    static transactional = false
 
+    @Metered(value='QuoteService.getQuote', useClassPrefix = false)
     def getQuote(User user, String symbol, int transactionNum) {
         //todo:change to fit real quote response
         JedisDB jedis = new JedisDB()
         CSocket client = new CSocket()
         String ipaddress = "192.168.1.152"
         int port = 4447
-        Boolean test = true
+        Boolean test = false
         String res
 
         QuoteServerTypeBean record

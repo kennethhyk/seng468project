@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisPoolConfig
 class QuoteCacheService {
 
     JedisPoolConfig jedisPoolConfig = new JedisPoolConfig()
-    JedisPool pool = new JedisPool(jedisPoolConfig, "192.168.1.148", 6379, 1000)
+    JedisPool pool = new JedisPool(jedisPoolConfig, "192.168.1.148", 44445, 1000)
     Jedis jedis = pool.getResource()
     def seconds = 60
 

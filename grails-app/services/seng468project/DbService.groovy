@@ -102,11 +102,11 @@ class DbService {
         def results = User.createCriteria().get{
             eq 'username', userId
         } as User
-
-        if(results){
-            return true
-        }
-        return false
+        return results
+//        if(results){
+//            return true
+//        }
+//        return false
     }
 
     // TODO: need to be updated once there are more than one company
@@ -115,11 +115,12 @@ class DbService {
             eq'username',userId
         } as User
 
-        if(!row) {
-            return [0,0]
-        }else{
-            return [1,row.balance.setScale(2).toString()]
-        }
+        return row?.balance?.setScale(2)?.toString()?:null
+//        if(!row) {
+//            return null
+//        }else{
+//            return row.balance.setScale(2).toString()
+//        }
     }
 
     //TODO: typecheck
@@ -144,13 +145,13 @@ class DbService {
         } as User
 
         if(!row) {
-                return [0,0]
+                return null
         }else{
             if(row.stockShareMap[symbol]){
-                return [1,Integer.parseInt(row.stockShareMap[symbol] as String)]
+                return Integer.parseInt(row.stockShareMap[symbol] as String)
             }else{
                 row.stockShareMap[symbol] = "0"
-                return [1,0]
+                return 0
             }
 
         }

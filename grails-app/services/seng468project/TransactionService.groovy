@@ -1,5 +1,7 @@
 package seng468project
 
+import grails.plugin.dropwizard.metrics.meters.Metered
+import grails.plugin.dropwizard.metrics.timers.Timed
 import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.enums.TransactionStatusEnum
@@ -20,7 +22,7 @@ class TransactionService {
         if(userBalance.compareTo(price) == -1) return false
         return true
     }
-
+    @Timed(value='TransactionService.buy', useClassPrefix = false)
     String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum) {
 
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
@@ -39,9 +41,14 @@ class TransactionService {
         return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
 
+    @Timed(value='TransactionService.commitbuy', useClassPrefix = false)
     String commitBuy(User user, int transactionNum) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+//        Transaction.executeQuery("select * from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
+//                "where a.dateCreated > ? and a.status = ? and a.user = ?)",
+//                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user])
+
         def lastestTransactionTime = Transaction.createCriteria().get {
             projections {
                 max("dateCreated")
@@ -91,6 +98,7 @@ class TransactionService {
         return res
     }
 
+    @Timed(value='TransactionService.cancelbuy', useClassPrefix = false)
     String cancelBuy(User user, int transactionNum) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
@@ -117,6 +125,7 @@ class TransactionService {
         return "Canceled successfully"
     }
 
+    @Timed(value='TransactionService.sell', useClassPrefix = false)
     String sell(User user, String stockSymbol, BigDecimal sellPriceAmount, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
@@ -138,6 +147,7 @@ class TransactionService {
         return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
 
+    @Timed(value='TransactionService.commitsell', useClassPrefix = false)
     String commitSell(User user, int transactionNum) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def lastestTransactionTime = Transaction.createCriteria().get {
@@ -184,7 +194,7 @@ class TransactionService {
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         return res
     }
-
+    @Timed(value='TransactionService.cancelsell', useClassPrefix = false)
     String cancelSell(User user, int transactionNum) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
@@ -214,7 +224,7 @@ class TransactionService {
     /***************************************************************
         TRIGGER SECTION
      **************************************************************/
-
+    @Timed(value='TransactionService.triggerExists', useClassPrefix = false)
     Boolean triggerExists(User user, String stockSymbol, String type){
         if(type.equals("BUY") ){
             if(TransactionTrigger.createCriteria().get{
@@ -240,6 +250,7 @@ class TransactionService {
         return false
     }
 
+    @Timed(value='TransactionService.setBuyAmount', useClassPrefix = false)
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         // if trigger already exitst, don't proceed any further
         if(triggerExists(user,stockSymbol,"BUY")) {
@@ -274,6 +285,7 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
+    @Timed(value='TransactionService.canselSetBuy', useClassPrefix = false)
     String cancelSetBuy(User user,String stockSymbol, int transactionNum){
         // find the trigger
         def record = TransactionTrigger.createCriteria().get{
@@ -303,6 +315,7 @@ class TransactionService {
         return "set_buy canceled"
     }
 
+    @Timed(value='TransactionService.setBuyTrigger', useClassPrefix = false)
     String setBuyTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
@@ -323,6 +336,7 @@ class TransactionService {
     }
 
     //TODO: add function to handle buy trigger
+    @Timed(value='TransactionService.setSellAmount', useClassPrefix = false)
     String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         // check no other triggers for the same symbol
         if(triggerExists(user,stockSymbol,"SELL")) {
@@ -345,6 +359,7 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
+    @Timed(value='TransactionService.setSellTrigger', useClassPrefix = false)
     String setSellTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
@@ -361,7 +376,7 @@ class TransactionService {
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         // check user has sufficient shares
-        if(dbService.getUserStocks(user.username,stockSymbol)[1] < sharesToSell.intValueExact()) {
+        if(dbService.getUserStocks(user.username,stockSymbol) < sharesToSell.intValueExact()) {
             //auditService.saveErrorEvent(user,obj,"not enough shares to sell")
             return "not enough shares to sell"
         }
@@ -378,6 +393,7 @@ class TransactionService {
         return "sell trigger set"
     }
 
+    @Timed(value='TransactionService.cancelSetCell', useClassPrefix = false)
     String cancelSetSell(User user,String stockSymbol, int transactionNum){
         TransactionTrigger record = TransactionTrigger.createCriteria().get{
             eq'user',user

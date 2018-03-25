@@ -6,6 +6,12 @@ grails:
     spring:
         transactionManagement:
             proxies: false
+    dropwizard:
+            metrics:
+                reporterFrequency: 10 # report every 10 seconds
+                csv-reporter:
+                    active: true
+                    output-dir: /report
 info:
     app:
         name: '@info.app.name@'
@@ -120,10 +126,10 @@ environments:
             password : "toor"
             properties:
                 jmxEnabled: true
-                initialSize: 5
-                maxActive: 50
+                initialSize: 50
+                maxActive: 1000
                 minIdle: 5
-                maxIdle: 25
+                maxIdle: 10
                 maxWait: 10000
                 maxAge: 600000
                 timeBetweenEvictionRunsMillis: 5000

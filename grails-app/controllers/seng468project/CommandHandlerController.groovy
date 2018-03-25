@@ -1,10 +1,13 @@
 package seng468project
 
+import grails.plugin.dropwizard.metrics.timers.Timed
+
 class CommandHandlerController {
 
     def commandHandlerService
     def dbService
 
+    @Timed(value='commandhandlerController.index', useClassPrefix = false)
     def index() {
             def res = request.JSON
             String commandString = res.command
