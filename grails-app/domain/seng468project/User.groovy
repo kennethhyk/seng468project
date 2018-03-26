@@ -12,8 +12,8 @@ class User {
         return this.balance.subtract(this.reservedBalance)
     }
 
-    static mapping = {
-        id generator: 'assigned', name: "username", type: 'string'
+    static constraints = {
+        username unique: true
     }
 
     @Override
