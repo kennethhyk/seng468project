@@ -127,7 +127,7 @@ environments:
             properties:
                 jmxEnabled: true
                 initialSize: 50
-                maxActive: 1000
+                maxActive: 5000
                 minIdle: 5
                 maxIdle: 10
                 maxWait: 10000
