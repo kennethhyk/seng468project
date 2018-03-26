@@ -12,14 +12,13 @@ class User {
         return this.balance.subtract(this.reservedBalance)
     }
 
-    static constraints = {
-        username unique: true
+    static mapping = {
+        id column: "username", name: "username", type: "string", generator: "assigned"
     }
 
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
                 ", version=" + version +
                 ", transactionList=" + transactionList +
                 ", username='" + username + '\'' +

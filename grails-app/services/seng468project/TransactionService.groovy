@@ -1,7 +1,5 @@
 package seng468project
 
-//import grails.plugin.dropwizard.metrics.meters.Metered
-//import grails.plugin.dropwizard.metrics.timers.Timed
 import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.enums.TransactionStatusEnum
@@ -27,7 +25,6 @@ class TransactionService {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
-            //auditService.saveErrorEvent(user, obj, "you don't have enough money")
             return "you don't have enough money"
         }
         Transaction transaction = new Transaction(
@@ -51,15 +48,12 @@ class TransactionService {
         Transaction transaction = t[0]
 
         if(!transaction) {
-            //auditService.saveErrorEvent(user,obj,"No active buy was found for user $user.username")
             return "No active buy was found for user $user.username"
         }
         if(user.realBalance() < transaction.amount) {
-            //auditService.saveErrorEvent(user,obj,"you don't have enough money")
             return "you don't have enough money"
         }
         if(transaction.amount < transaction.quotedPrice){
-            //auditService.saveErrorEvent(user,obj,"your purchase amount wont be able to buy one share")
             return "your purchase amount wont be able to buy one share"
         }
 
@@ -70,17 +64,6 @@ class TransactionService {
         user.save()
         transaction.status = TransactionStatusEnum.COMMIT_BUY
         transaction.save()
-
-//        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-//                System.currentTimeMillis(),
-//                "TRANSACTION SERVER: ZaaS",
-//                transactionNum,
-//                "COMMIT_BUY",
-//                user.username,
-//                (sharesToBuy*transaction.quotedPrice).toString()
-//        )
-//        String str = auditService.getAccountTransactionString(obj_1)
-//        new LogHistory(user, str).save()
 
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         return res
@@ -96,7 +79,6 @@ class TransactionService {
         Transaction transaction = t[0]
 
         if(!transaction) {
-            //auditService.saveErrorEvent(user,obj,"You dont have an active trasaction")
             return "You dont have an active trasaction"
         }
 
@@ -114,7 +96,6 @@ class TransactionService {
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
-            //auditService.saveErrorEvent(user,obj,"you don't have enough share")
             return "you don't have enough share"
         }
         Transaction transaction = new Transaction(
@@ -138,32 +119,19 @@ class TransactionService {
         Transaction transaction = t[0]
 
         if(!transaction) {
-            //auditService.saveErrorEvent(user,obj,"No active sell was found for user $user.username")
             return "No active sell was found for user $user.username"
         }
         if((user.stockShareMap[transaction.stockSymbol] as Integer) < transaction.amount) {
-            //auditService.saveErrorEvent(user,obj,"you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount")
             return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
         }
 
         // TODO: use DbServices for modifying db records later
-        BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2)
+        BigDecimal sellPriceAmount = (transaction.amount.setScale(2) * transaction.quotedPrice.setScale(2)).setScale(2)
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
         user.balance = user.balance + sellPriceAmount
         user.save()
         transaction.status = TransactionStatusEnum.COMMIT_SELL
         transaction.save()
-
-//        AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-//                System.currentTimeMillis(),
-//                "TRANSACTION SERVER: ZaaS",
-//                transactionNum,
-//                "COMMIT_SELL",
-//                user.username,
-//                sellPriceAmount.toString()
-//        )
-//        String str = auditService.getAccountTransactionString(obj_1)
-//        new LogHistory(user, str).save()
 
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         return res
@@ -179,7 +147,6 @@ class TransactionService {
         Transaction transaction = t[0]
 
         if(!transaction) {
-            //auditService.saveErrorEvent(user,obj,"You dont have an active transaction")
             return "You dont have an active transaction"
         }
 
@@ -222,20 +189,17 @@ class TransactionService {
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         // if trigger already exitst, don't proceed any further
         if(triggerExists(user,stockSymbol,"BUY")) {
-            //auditService.saveErrorEvent(user,obj, "TransactionTrigger for $stockSymbol already exists")
             return "TransactionTrigger for $stockSymbol already exists"
         }
 
         QuoteServerTypeBean quote = quoteService.getQuote(user,stockSymbol, transactionNum)
 
         if(!hasSufficientBalance(user.realBalance(),amount,quote.price)) {
-            //auditService.saveErrorEvent(user,obj, "you don't have enough money")
             return "you don't have enough money"
         }
         // TODO check if can access db through user.
 
         if(!dbService.reserveMoney(user.username, amount)){
-            //auditService.saveErrorEvent(user,obj, "user doesn't exist")
             return "user doesn't exist"
         }
 
@@ -256,6 +220,7 @@ class TransactionService {
 //    @Timed(value='TransactionService.canselSetBuy', useClassPrefix = false)
     String cancelSetBuy(User user,String stockSymbol, int transactionNum){
         // find the trigger
+
         def record = TransactionTrigger.createCriteria().get{
             and {
                 eq'user',user
@@ -267,13 +232,11 @@ class TransactionService {
             }
         } as TransactionTrigger
         if(!record) {
-            //auditService.saveErrorEvent(user,obj,"no trigger record found")
             return "no trigger record found"
         }
 
         // release money
         if(!dbService.releaseReservedMoney(user.username,record.reservedBalance)){
-            //auditService.saveErrorEvent(user,obj,"user not found")
             return "user not found"
         }
 
@@ -292,7 +255,6 @@ class TransactionService {
         } as TransactionTrigger
 
         if(!record) {
-            //auditService.saveErrorEvent(user,obj,"no record found, please set buy amount first")
             return "no record found, please set buy amount first"
         }
 
@@ -308,7 +270,6 @@ class TransactionService {
     String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
         // check no other triggers for the same symbol
         if(triggerExists(user,stockSymbol,"SELL")) {
-            //auditService.saveErrorEvent(user,obj,"TransactionTrigger for $stockSymbol already exists")
             return "TransactionTrigger for $stockSymbol already exists"
         }
 
@@ -336,7 +297,6 @@ class TransactionService {
         } as TransactionTrigger
 
         if(!record) {
-            //auditService.saveErrorEvent(user,obj,"no record found, please set sell amount first")
             return "no record found, please set sell amount first"
         }
 
@@ -345,7 +305,6 @@ class TransactionService {
 
         // check user has sufficient shares
         if(dbService.getUserStocks(user.username,stockSymbol) < sharesToSell.intValueExact()) {
-            //auditService.saveErrorEvent(user,obj,"not enough shares to sell")
             return "not enough shares to sell"
         }
 
@@ -372,7 +331,6 @@ class TransactionService {
             }
         }
         if(!record) {
-            //auditService.saveErrorEvent(user,obj,"no trigger record found")
             return "no trigger record found"
         }
 
@@ -398,7 +356,6 @@ class TransactionService {
 
         QuoteServerTypeBean quote = null
         int transactionNum = 99999
-        //TODO cache
         records.each {
             quote = quoteService.getQuote(it.user,it.stockSymbol, transactionNum)
             if(it.status == TriggerStatusEnum.SET_BUY_TRIGGER && quote.price <= it.triggerPrice){
@@ -414,62 +371,12 @@ class TransactionService {
                 it.user.reservedBalance -= it.reservedBalance
                 it.user.save()
                 it.status = TriggerStatusEnum.DONE
-
-//                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-//                        System.currentTimeMillis(),
-//                        "TRANSACTION SERVER: ZaaS",
-//                        transactionNum,
-//                        "BUY_TRIGGERED",
-//                        it.user.username,
-//                        it.user.reservedBalance.toString()
-//                )
-//                String str = auditService.getAccountTransactionString(obj_1)
-//                new LogHistory(it.user, str).save()
-
-//                UserCommandTypeBean obj = new UserCommandTypeBean(
-//                        System.currentTimeMillis(),
-//                        "TRANSACTION SERVER: ZaaS",
-//                        transactionNum,
-//                        "COMMIT_BUY",
-//                        it.user.username,
-//                        it.stockSymbol,
-//                        "",
-//                        it.reservedBalance.toString()
-//                )
-//                String str_1 = auditService.getSystemEventString(obj)
-//                new LogHistory(it.user,str_1).save()
-
-
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell
                 BigDecimal moneyToAdd = new BigDecimal(it.reservedShares)* quote.price
 
                 dbService.addAmount(it.user.username,moneyToAdd.toString(), transactionNum)
                 it.status = TriggerStatusEnum.DONE
-
-//                AccountTransactionTypeBean obj_1 = new AccountTransactionTypeBean(
-//                        System.currentTimeMillis(),
-//                        "TRANSACTION SERVER: ZaaS",
-//                        transactionNum,
-//                        "SELL_TRIGGERED",
-//                        it.user.username,
-//                        moneyToAdd.toString()
-//                )
-//                String str = auditService.getAccountTransactionString(obj_1)
-//                new LogHistory(it.user, str).save()
-
-//                UserCommandTypeBean obj = new UserCommandTypeBean(
-//                        System.currentTimeMillis(),
-//                        "TRANSACTION SERVER: ZaaS",
-//                        transactionNum,
-//                        "COMMIT_SELL",
-//                        it.user.username,
-//                        it.stockSymbol,
-//                        "",
-//                        moneyToAdd.toString()
-//                )
-//                String str_1 = auditService.getSystemEventString(obj)
-//                new LogHistory(it.user,str_1).save()
             }
 
         }
