@@ -19,13 +19,13 @@ class Transaction {
     public String toString() {
         return "Transaction{" +
                 "id=" + id +
-                ", user=" + user +
+                ", user=" + user.username+
                 ", status=" + status +
                 ", stockSymbol='" + stockSymbol + '\'' +
                 ", quotedPrice=" + quotedPrice +
                 ", amount=" + amount +
                 ", dateCreated=" + dateCreated +
                 ", lastUpdated=" + lastUpdated +
-                '}';
+                '}'
     }
 }
