@@ -130,7 +130,7 @@ class TransactionService {
         System.out.println(transaction.quotedPrice)
         System.out.println(transaction.amount * transaction.quotedPrice)
 
-        BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2)
+        BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2, RoundingMode.FLOOR)
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
         user.balance = user.balance + sellPriceAmount
         user.save()
