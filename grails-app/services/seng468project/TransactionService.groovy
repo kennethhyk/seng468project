@@ -126,7 +126,11 @@ class TransactionService {
         }
 
         // TODO: use DbServices for modifying db records later
-        BigDecimal sellPriceAmount = (transaction.amount.setScale(2) * transaction.quotedPrice.setScale(2)).setScale(2)
+        System.out.println(transaction.amount)
+        System.out.println(transaction.quotedPrice)
+        System.out.println(transaction.amount * transaction.quotedPrice)
+
+        BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2)
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
         user.balance = user.balance + sellPriceAmount
         user.save()
