@@ -1,16 +1,17 @@
 package seng468project
 
+import grails.transaction.Transactional
 import seng468project.beans.CommandBean
 import seng468project.beans.UserCommandTypeBean
 
-//@Transactional
+@Transactional
 class CommandHandlerService {
 
     def quoteService
     def transactionService
     def dbService
     def auditService
-    static transactional = false
+//    static transactional = false
 
     CommandBean parseCommandAndCreateCommandBean(String command) {
         List<String> aCommand = command.split(",")

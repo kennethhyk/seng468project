@@ -1,15 +1,16 @@
 package seng468project
 
+import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 import seng468project.helpers.JedisDB
 import grails.util.Environment
 
-//@Transactional
+@Transactional
 class QuoteService {
 
     def auditService
-    static transactional = false
+//    static transactional = false
 
 //    @Metered(value='QuoteService.getQuote', useClassPrefix = false)
     def getQuote(User user, String symbol, int transactionNum) {

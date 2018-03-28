@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import grails.util.Environment
 import groovyx.net.http.AsyncHTTPBuilder
 
@@ -8,10 +9,10 @@ import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.UserCommandTypeBean
 
-//@Transactional
+@Transactional
 class AuditService {
 
-    static transactional = false
+//    static transactional = false
     String header = "<?xml version=\"1.0\"?>\n" +
             "<log>\n"
     String footer = "\n</log>"
