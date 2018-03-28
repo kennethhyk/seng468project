@@ -42,7 +42,7 @@ class TransactionService {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
                 "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user])
+                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -73,7 +73,7 @@ class TransactionService {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
                 "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user])
+                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -113,7 +113,7 @@ class TransactionService {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
                 "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user])
+                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -142,7 +142,7 @@ class TransactionService {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
                 "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user])
+                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -161,7 +161,7 @@ class TransactionService {
      **************************************************************/
 //    @Timed(value='TransactionService.triggerExists', useClassPrefix = false)
     Boolean triggerExists(User user, String stockSymbol, String type){
-        if(type.equals("BUY") ){
+        if( type == "BUY" ){
             if(TransactionTrigger.createCriteria().get{
                 and {
                     eq'user',user
@@ -172,7 +172,7 @@ class TransactionService {
                     }
                 }
             }) return true
-        }else if(type.equals("SELL")){
+        }else if( type == "SELL"){
             if(TransactionTrigger.createCriteria().get{
                 eq'user',user
                 eq 'stockSymbol',stockSymbol
@@ -329,7 +329,7 @@ class TransactionService {
                 eq 'status', TriggerStatusEnum.SET_SELL
                 eq 'status', TriggerStatusEnum.SET_SELL_TRIGGER
             }
-        }
+        } as TransactionTrigger
         if(!record) {
             return "no trigger record found"
         }
