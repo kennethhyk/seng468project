@@ -1,10 +1,9 @@
 package seng468project
 
-//import grails.plugin.dropwizard.metrics.meters.Metered
-import grails.transaction.Transactional
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.helpers.CSocket
 import seng468project.helpers.JedisDB
+import grails.util.Environment
 
 //@Transactional
 class QuoteService {
@@ -14,16 +13,13 @@ class QuoteService {
 
 //    @Metered(value='QuoteService.getQuote', useClassPrefix = false)
     def getQuote(User user, String symbol, int transactionNum) {
-        //todo:change to fit real quote response
-        Boolean test = true
         String res
-
+        JedisDB jedis = new JedisDB()
+        CSocket client = new CSocket()
+        String ipaddress = "192.168.1.152"
+        int port = 4447
         QuoteServerTypeBean record
-        if(!test){
-            JedisDB jedis = new JedisDB()
-            CSocket client = new CSocket()
-            String ipaddress = "192.168.1.152"
-            int port = 4447
+        if(Environment.current == Environment.PRODUCTION){
             if(!jedis.lookupEntry(symbol)){
                 client.start( ipaddress, port )
                 res = client.sendMessage(symbol +"," + user.username)
@@ -38,7 +34,7 @@ class QuoteService {
                 record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
             }
 
-        }else{
+        }else if(Environment.current == Environment.DEVELOPMENT){
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
                 "quoteserve.seng:4447",

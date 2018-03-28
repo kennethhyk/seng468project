@@ -13,7 +13,7 @@ class User {
     }
 
     static mapping = {
-        id column: "username", name: "username", type: "string", generator: "assigned"
+        username unique: true
     }
 
     @Override

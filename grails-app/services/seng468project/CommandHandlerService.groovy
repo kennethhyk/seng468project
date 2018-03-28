@@ -1,6 +1,5 @@
 package seng468project
 
-//import grails.plugin.dropwizard.metrics.timers.Timed
 import seng468project.beans.CommandBean
 import seng468project.beans.UserCommandTypeBean
 
@@ -23,12 +22,13 @@ class CommandHandlerService {
         CommandBean commandBean = parseCommandAndCreateCommandBean(command)
         if(commandBean.command == null) {
             System.out.println("Command $command is not recognized")
-//            log.info("Command $command is not recognized")
         } else if(commandBean.parameterList == null) {
                 System.out.println("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
-//                log.info("number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}")
             } else {
                 User user = User.findByUsername(commandBean.parameterList[0] as String)
+                if(!user) {
+                    return "no such user error"
+                }
                 switch(commandBean.command as String) {
                 case "ADD":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -36,13 +36,13 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "ADD",
-                            commandBean.parameterList[0],
+                            user.username,
                             "",
                             "",
                             commandBean.parameterList[1]
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = dbService.addAmount(commandBean.parameterList[0],commandBean.parameterList[1], transactionNum)
+                    res = dbService.addAmount(user,commandBean.parameterList[1])
                     break
 
                 case "QUOTE":
@@ -56,9 +56,7 @@ class CommandHandlerService {
                             "",
                             "0.00"
                     )
-                    // get the corresponding formatted XML block
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    // save to db
                     res = quoteService.getQuote(user, commandBean.parameterList[1], transactionNum)
                     break
 
@@ -174,14 +172,13 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "CANCEL_SET_BUY",
-                            commandBean.parameterList[0],
+                            user.username,
                             commandBean.parameterList[1],
                             "",
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
                     res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
-//                    log.debug("this is the CANCEL_SET_BUY function")
                     break
 
                 case "SET_BUY_TRIGGER":
@@ -190,7 +187,7 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "SET_BUY_TRIGGER",
-                            commandBean.parameterList[0],
+                            user.username,
                             commandBean.parameterList[1],
                             "",
                             commandBean.parameterList[2]
@@ -206,7 +203,7 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "SET_SELL_AMOUNT",
-                            commandBean.parameterList[0],
+                            user.username,
                             commandBean.parameterList[1],
                             "",
                             commandBean.parameterList[2]
@@ -221,7 +218,7 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "SET_SELL_TRIGGER",
-                            commandBean.parameterList[0],
+                            user.username,
                             commandBean.parameterList[1],
                             "",
                             commandBean.parameterList[2]
@@ -235,7 +232,7 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "SET_SELL_TRIGGER",
-                            commandBean.parameterList[0],
+                            user.username,
                             commandBean.parameterList[1],
                             "",
                             "0.00"
@@ -255,10 +252,7 @@ class CommandHandlerService {
                             commandBean.parameterList[0],
                             "0.00"
                     )
-                    // get the corresponding formatted XML block
                     auditService.dispatch( "zddbuzuoshi", auditService.getUserCommandString(obj) )
-                    // save to db
-//                    res = auditService.dumpLog(commandBean.parameterList[0])
                     res = "DUMPLOG DONE!"
                     break
                 case "DISPLAY_SUMMARY":
@@ -267,16 +261,12 @@ class CommandHandlerService {
                             "TRANSACTION SERVER: ZaaS",
                             transactionNum,
                             "DISPLAY_SUMMARY",
-                            commandBean.parameterList[0],
+                            user.username,
                             "",
                             "",
                             "0.00"
                     )
-                    // get the corresponding formatted XML block
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    // save to db
-
-
                     res = "RESPONSE OF DISPLAY SUMMARY"
                     break
             }

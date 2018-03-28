@@ -13,7 +13,6 @@ import java.sql.Timestamp
 class TransactionService {
     def quoteService
     def dbService
-    def auditService
 
     Boolean hasSufficientBalance(BigDecimal userBalance, BigDecimal buyAmount, BigDecimal price){
         if(userBalance.compareTo(buyAmount) == -1) return false
@@ -27,7 +26,7 @@ class TransactionService {
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             return "you don't have enough money"
         }
-        Transaction transaction = new Transaction(
+        new Transaction(
                 user: user,
                 status: TransactionStatusEnum.BUY,
                 stockSymbol: stockSymbol,
@@ -59,7 +58,7 @@ class TransactionService {
 
         BigDecimal shareAmount = transaction.amount/transaction.quotedPrice
         BigDecimal sharesToBuy = shareAmount.setScale(0, RoundingMode.FLOOR)
-        dbService.addStockShares(transaction.user.username,transaction.stockSymbol,sharesToBuy.intValueExact())
+        dbService.addStockShares(transaction.user,transaction.stockSymbol,sharesToBuy.intValueExact())
         user.balance = user.balance - (sharesToBuy*transaction.quotedPrice)
         user.save()
         transaction.status = TransactionStatusEnum.COMMIT_BUY
@@ -98,7 +97,7 @@ class TransactionService {
         if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
             return "you don't have enough share"
         }
-        Transaction transaction = new Transaction(
+        new Transaction(
                 user: user,
                 status: TransactionStatusEnum.SELL,
                 stockSymbol: stockSymbol,
@@ -126,9 +125,6 @@ class TransactionService {
         }
 
         // TODO: use DbServices for modifying db records later
-        System.out.println(transaction.amount)
-        System.out.println(transaction.quotedPrice)
-        System.out.println(transaction.amount * transaction.quotedPrice)
 
         BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2, RoundingMode.FLOOR)
         user.stockShareMap[transaction.stockSymbol] -= transaction.amount
@@ -203,12 +199,12 @@ class TransactionService {
         }
         // TODO check if can access db through user.
 
-        if(!dbService.reserveMoney(user.username, amount)){
+        if(!dbService.reserveMoney(user, amount)){
             return "user doesn't exist"
         }
 
         // TODO: relate trigger table to user table
-        TransactionTrigger new_trig = new TransactionTrigger(
+        new TransactionTrigger(
                 user,
                 stockSymbol,
                 new BigDecimal("-1.00"),
@@ -240,7 +236,7 @@ class TransactionService {
         }
 
         // release money
-        if(!dbService.releaseReservedMoney(user.username,record.reservedBalance)){
+        if(!dbService.releaseReservedMoney(user,record.reservedBalance)){
             return "user not found"
         }
 
@@ -279,7 +275,7 @@ class TransactionService {
 
         // TODO: relate trigger table to user table
         // create new trigger to table
-        TransactionTrigger new_trig = new TransactionTrigger(
+        new TransactionTrigger(
                 user,
                 stockSymbol,
                 new BigDecimal("-1.00"),
@@ -308,13 +304,13 @@ class TransactionService {
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
         // check user has sufficient shares
-        if(dbService.getUserStocks(user.username,stockSymbol) < sharesToSell.intValueExact()) {
+        if(dbService.getUserStocks(user,stockSymbol) < sharesToSell.intValueExact()) {
             return "not enough shares to sell"
         }
 
         //reserve shares
         //TODO: need to implement another map for reservedshares
-        dbService.removeStockShares(user.username,stockSymbol,sharesToSell.intValueExact())
+        dbService.removeStockShares(user,stockSymbol,sharesToSell.intValueExact())
 
         record.reservedShares = sharesToSell.intValueExact()
         record.triggerPrice = amount
@@ -326,7 +322,7 @@ class TransactionService {
 
 //    @Timed(value='TransactionService.cancelSetCell', useClassPrefix = false)
     String cancelSetSell(User user,String stockSymbol, int transactionNum){
-        TransactionTrigger record = TransactionTrigger.createCriteria().get{
+        def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
             or {
@@ -339,7 +335,7 @@ class TransactionService {
         }
 
         // release shares
-        dbService.addStockShares(user.username,record.stockSymbol,record.reservedShares)
+        dbService.addStockShares(user,record.stockSymbol,record.reservedShares)
 
         record.status = TriggerStatusEnum.CANCELED
         record.save()
@@ -369,9 +365,9 @@ class TransactionService {
                 BigDecimal amountToReturn = it.reservedBalance - (sharesToBuy*quote.price)
 
                 //TODO: use db methods
-                dbService.removeAmount(it.user.username,it.reservedBalance.toString())
-                dbService.addAmount(it.user.username,amountToReturn.toString(), transactionNum)
-                dbService.addStockShares(it.user.username,it.stockSymbol,sharesToBuy.intValueExact())
+                dbService.removeAmount(it.user,it.reservedBalance.toString())
+                dbService.addAmount(it.user, amountToReturn.toString())
+                dbService.addStockShares(it.user,it.stockSymbol,sharesToBuy.intValueExact())
                 it.user.reservedBalance -= it.reservedBalance
                 it.user.save()
                 it.status = TriggerStatusEnum.DONE
@@ -379,7 +375,7 @@ class TransactionService {
                 // TODO: use sell
                 BigDecimal moneyToAdd = new BigDecimal(it.reservedShares)* quote.price
 
-                dbService.addAmount(it.user.username,moneyToAdd.toString(), transactionNum)
+                dbService.addAmount(it.user,moneyToAdd.toString())
                 it.status = TriggerStatusEnum.DONE
             }
 
