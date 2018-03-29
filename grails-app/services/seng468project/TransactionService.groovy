@@ -68,11 +68,10 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.cancelbuy', useClassPrefix = false)
-    String cancelBuy(User user, int transactionNum) {
+    String cancelBuy(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
-                "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
+        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -108,11 +107,10 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.commitsell', useClassPrefix = false)
-    String commitSell(User user, int transactionNum) {
+    String commitSell(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
-                "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
+        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -136,12 +134,11 @@ class TransactionService {
         return res
     }
 //    @Timed(value='TransactionService.cancelsell', useClassPrefix = false)
-    String cancelSell(User user, int transactionNum) {
+    String cancelSell(User user) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
-                "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
+        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<Transaction>
 
         Transaction transaction = t[0]
 
@@ -217,7 +214,7 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.canselSetBuy', useClassPrefix = false)
-    String cancelSetBuy(User user,String stockSymbol, int transactionNum){
+    String cancelSetBuy(User user,String stockSymbol){
         // find the trigger
 
         def record = TransactionTrigger.createCriteria().get{
@@ -246,7 +243,7 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.setBuyTrigger', useClassPrefix = false)
-    String setBuyTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
+    String setBuyTrigger(User user, String stockSymbol, BigDecimal amount){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
@@ -266,7 +263,7 @@ class TransactionService {
 
     //TODO: add function to handle buy trigger
 //    @Timed(value='TransactionService.setSellAmount', useClassPrefix = false)
-    String setSellAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
+    String setSellAmount(User user, String stockSymbol, BigDecimal amount){
         // check no other triggers for the same symbol
         if(triggerExists(user,stockSymbol,"SELL")) {
             return "TransactionTrigger for $stockSymbol already exists"
@@ -288,7 +285,7 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.setSellTrigger', useClassPrefix = false)
-    String setSellTrigger(User user, String stockSymbol, BigDecimal amount, int transactionNum){
+    String setSellTrigger(User user, String stockSymbol, BigDecimal amount){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
@@ -297,6 +294,10 @@ class TransactionService {
 
         if(!record) {
             return "no record found, please set sell amount first"
+        }
+
+        if(amount<= new BigDecimal("0.00")){
+            return "cannot set amount smaller or equal to 0"
         }
 
         BigDecimal sharesCanSell = record.buySellAmount/amount
@@ -320,7 +321,7 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.cancelSetCell', useClassPrefix = false)
-    String cancelSetSell(User user,String stockSymbol, int transactionNum){
+    String cancelSetSell(User user,String stockSymbol){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol

@@ -104,7 +104,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.cancelBuy(user, transactionNum)
+                    res = transactionService.cancelBuy(user)
                     break
 
                 case "SELL":
@@ -134,7 +134,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.commitSell(user, transactionNum)
+                    res = transactionService.commitSell(user)
                     break
 
                 case "CANCEL_SELL":
@@ -149,7 +149,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.cancelSell(user, transactionNum)
+                    res = transactionService.cancelSell(user)
                     break
 
                 case "SET_BUY_AMOUNT":
@@ -179,7 +179,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.cancelSetBuy(user, commandBean.parameterList[1], transactionNum)
+                    res = transactionService.cancelSetBuy(user, commandBean.parameterList[1])
                     break
 
                 case "SET_BUY_TRIGGER":
@@ -194,7 +194,7 @@ class CommandHandlerService {
                             commandBean.parameterList[2]
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setBuyTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]))
 //                    log.debug("this is the SET_BUY_TRIGGER function")
                     break
 
@@ -210,7 +210,7 @@ class CommandHandlerService {
                             commandBean.parameterList[2]
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setSellAmount(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]))
                     break
 
                 case "SET_SELL_TRIGGER":
@@ -225,7 +225,7 @@ class CommandHandlerService {
                             commandBean.parameterList[2]
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]), transactionNum)
+                    res = transactionService.setSellTrigger(user, commandBean.parameterList[1], new BigDecimal(commandBean.parameterList[2]))
                     break
                 case "CANCEL_SET_SELL":
                     UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -239,7 +239,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.cancelSetSell(user, commandBean.parameterList[1], transactionNum)
+                    res = transactionService.cancelSetSell(user, commandBean.parameterList[1])
                     break
 
                 case "DUMPLOG":
