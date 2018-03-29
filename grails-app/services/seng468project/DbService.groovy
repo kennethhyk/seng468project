@@ -8,14 +8,14 @@ class DbService {
     def addAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
         user.balance = user.balance.add(bd_amount)
-        user.save()
+        user.save(flush: true)
         return amount
     }
 
     def removeAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
         user.balance = user.balance.subtract(bd_amount)
-        user.save()
+        user.save(flush: true)
         return amount
     }
 
@@ -26,7 +26,7 @@ class DbService {
             def new_user = new User(username:userId,balance:new BigDecimal(balance), reservedBalance: new BigDecimal("0"))
 
             new_user.stockShareMap = new HashMap<>()
-            new_user.save()
+            new_user.save(flush: true)
             return new_user
         }
     }
@@ -46,24 +46,24 @@ class DbService {
         }else{
             user.stockShareMap[symbol] = Integer.toString(user.stockShareMap[symbol].toInteger() + shares)
         }
-        user.save()
+        user.save(flush: true)
     }
 
     def removeStockShares(User user, String symbol, Integer shares){
         user.stockShareMap[symbol] = Integer.toString(user.stockShareMap[symbol].toInteger() - shares)
-        user.save()
+        user.save(flush: true)
     }
 
     def reserveMoney(User user, BigDecimal reserveAmount){
         user.balance -= reserveAmount
         user.reservedBalance += reserveAmount
-        user.save()
+        user.save(flush: true)
     }
 
     def releaseReservedMoney(User user, BigDecimal releaseAmount){
         user.balance = user.balance.add(releaseAmount)
         user.reservedBalance = user.reservedBalance.subtract(releaseAmount)
-        user.save()
+        user.save(flush: true)
     }
 
     def userExists(String userId){
