@@ -13,7 +13,7 @@ class User {
     }
 
     static mapping = {
-        username unique: true
+        username indexColumn:[name:'Username_Idx',unique:true]
     }
 
     @Override

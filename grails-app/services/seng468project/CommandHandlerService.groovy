@@ -89,7 +89,7 @@ class CommandHandlerService {
                             "0.00"
                     )
                     auditService.dispatch( user.username, auditService.getUserCommandString(obj) )
-                    res = transactionService.commitBuy(user, transactionNum)
+                    res = transactionService.commitBuy(user)
                     break
 
                 case "CANCEL_BUY":

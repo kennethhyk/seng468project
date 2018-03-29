@@ -13,7 +13,9 @@ class TransactionTrigger {
     TriggerStatusEnum status
 
 
-    static constraints = {
+    static mapping = {
+        stockSymbol indexColumn:[name:'StockSymbol_Idx']
+        status indexColumn:[name:'Status_Idx']
     }
 
     TransactionTrigger(User user, String stockSymbol, BigDecimal triggerPrice, BigDecimal reservedBalance, BigDecimal sellingAmount, Integer reservedShares, TriggerStatusEnum status) {

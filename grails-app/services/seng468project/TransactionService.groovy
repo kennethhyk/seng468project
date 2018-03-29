@@ -37,12 +37,11 @@ class TransactionService {
     }
 
 //    @Timed(value='TransactionService.commitbuy', useClassPrefix = false)
-    String commitBuy(User user, int transactionNum) {
+    String commitBuy(User user) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.dateCreated = (select distinct max(a.dateCreated) from Transaction a " +
-                "where a.dateCreated > ? and a.status = ? and a.user = ?)",
-                [user ,sixtySecondsAgo, TransactionStatusEnum.BUY, user]) as List<Transaction>
+        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<Transaction>
 
         Transaction transaction = t[0]
 

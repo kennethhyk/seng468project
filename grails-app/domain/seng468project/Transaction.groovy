@@ -12,7 +12,9 @@ class Transaction {
     Long dateCreated
     Long lastUpdated
 
-    static constraints = {
+    static mapping = {
+        dateCreated indexColumn:[name:'DateCreated_Idx']
+        status indexColumn:[name:'Status_Idx']
     }
 
     @Override

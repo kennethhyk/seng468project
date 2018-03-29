@@ -15,13 +15,15 @@ class QuoteService {
 //    @Metered(value='QuoteService.getQuote', useClassPrefix = false)
     def getQuote(User user, String symbol, int transactionNum) {
         String res
-        JedisDB jedis = new JedisDB()
+
         CSocket client = new CSocket()
         String ipaddress = "192.168.1.152"
         int port = 4447
         QuoteServerTypeBean record
         if(Environment.current == Environment.PRODUCTION){
-            if(!jedis.lookupEntry(symbol)){
+            JedisDB jedis = new JedisDB()
+            String value = jedis.jedis.get(symbol)
+            if(!value){
                 client.start( ipaddress, port )
                 res = client.sendMessage(symbol +"," + user.username)
                 client.stop()
@@ -30,12 +32,12 @@ class QuoteService {
                 record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
                 auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
             }else{
-                res = jedis.retrieveValue(symbol)
+                res = value
                 List<String> resList = res.split(",")
                 record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
             }
 
-        }else if(Environment.current == Environment.DEVELOPMENT){
+        }else{
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
                 "quoteserve.seng:4447",
