@@ -52,11 +52,11 @@ class AuditService {
         String str = "Balance: " + usr.balance.toString() + '\n' +
                 "Reserved balance: " + usr.reservedBalance.toString() + '\n'
 
-        str += "Stocks owned: {\n"
-        for (stock in usr.stockShareMap){
-            str += " - " + stock.key + " : " + stock.value + "\n"
-        }
-        str += "}\n\n"
+        //str += "Stocks owned: {\n"
+        //for (stock in usr.stockShareMap){
+        //    str += " - " + stock.key + " : " + stock.value + "\n"
+        //}
+        //str += "}\n\n"
 
         str += "Transaction records: {\n"
         usr.transactionList.each {
@@ -254,6 +254,6 @@ class AuditService {
 //    }
 
     def dispatch(String user, String log_msg) {
-        new LogHistory(user,log_msg).save()
+        new LogHistory(user,log_msg).save(flush:true)
     }
 }

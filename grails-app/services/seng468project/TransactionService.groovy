@@ -92,7 +92,7 @@ class TransactionService {
         BigDecimal sharesCanSell = sellPriceAmount/quote.price
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
-        if((user.stockShareMap[stockSymbol] as Integer) < sharesToSell) {
+        if(dbService.getUserStocks(user,stockSymbol) < sharesToSell) {
             return "you don't have enough share"
         }
         new Transaction(
@@ -113,18 +113,14 @@ class TransactionService {
                 [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<Transaction>
 
         Transaction transaction = t[0]
-
         if(!transaction) {
             return "No active sell was found for user $user.username"
         }
-        if((user.stockShareMap[transaction.stockSymbol] as Integer) < transaction.amount) {
-            return "you don't have enough share, you have ${(user.stockShareMap[transaction.stockSymbol] as Integer)}, and you tried to sell $transaction.amount"
+        if(dbService.getUserStocks(user,transaction.stockSymbol) < transaction.amount) {
+            return "you don't have enough share"
         }
-
-        // TODO: use DbServices for modifying db records later
-
         BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2, RoundingMode.FLOOR)
-        user.stockShareMap[transaction.stockSymbol] -= transaction.amount
+        dbService.removeStockShares(user,transaction.stockSymbol,transaction.amount as Integer)
         user.balance = user.balance + sellPriceAmount
         user.save(flush: true)
         transaction.status = TransactionStatusEnum.COMMIT_SELL
@@ -303,14 +299,9 @@ class TransactionService {
         BigDecimal sharesCanSell = record.buySellAmount/amount
         BigDecimal sharesToSell = sharesCanSell.setScale(0, RoundingMode.FLOOR)
 
-        // check user has sufficient shares
-        if(dbService.getUserStocks(user,stockSymbol) < sharesToSell.intValueExact()) {
+        if(!dbService.removeStockShares(user,stockSymbol,sharesToSell.intValueExact())){
             return "not enough shares to sell"
         }
-
-        //reserve shares
-        //TODO: need to implement another map for reservedshares
-        dbService.removeStockShares(user,stockSymbol,sharesToSell.intValueExact())
 
         record.reservedShares = sharesToSell.intValueExact()
         record.triggerPrice = amount

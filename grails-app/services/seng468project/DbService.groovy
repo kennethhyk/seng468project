@@ -24,34 +24,41 @@ class DbService {
             return null
         }else{
             def new_user = new User(username:userId,balance:new BigDecimal(balance), reservedBalance: new BigDecimal("0"))
-
-            new_user.stockShareMap = new HashMap<>()
             new_user.save(flush: true)
             return new_user
         }
     }
 
-    def getUserStocks(User user, String symbol){
-        if(user.stockShareMap[symbol]){
-            return Integer.parseInt(user.stockShareMap[symbol] as String)
+    Integer getUserStocks(User user, String symbol){
+        def t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
+                [user.id,symbol])[0]
+        if(t){
+            return t.shares
         }else {
-            user.stockShareMap[symbol] = "0"
-            return null
+            return 0
         }
     }
 
     def addStockShares(User user, String symbol, Integer shares){
-        if(!user.stockShareMap[symbol]){
-            user.stockShareMap[symbol] = Integer.toString(shares)
+        StockShares t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
+                [user.id,symbol])[0] as StockShares
+        if(!t){
+            new StockShares(user_id: user.id,stockSymbol: symbol,shares: shares).save(flush:true)
         }else{
-            user.stockShareMap[symbol] = Integer.toString(user.stockShareMap[symbol].toInteger() + shares)
+            t.shares += shares
+            t.save(flush:true)
         }
-        user.save(flush: true)
     }
 
     def removeStockShares(User user, String symbol, Integer shares){
-        user.stockShareMap[symbol] = Integer.toString(user.stockShareMap[symbol].toInteger() - shares)
-        user.save(flush: true)
+        StockShares t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
+                [user.id,symbol])[0] as StockShares
+        if(!t){
+            return 0
+        }
+        t.shares -= shares
+        t.save(flush:true)
+        return 1
     }
 
     def reserveMoney(User user, BigDecimal reserveAmount){
