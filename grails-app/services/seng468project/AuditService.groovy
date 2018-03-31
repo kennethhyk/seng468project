@@ -250,11 +250,9 @@ class AuditService {
 //        writer.close()
 //    }
     def redisService
-    Integer counter = 1
     def dispatch(String user, String log_msg) {
         redisService.withRedis { Jedis redis ->
-            redis.set(counter as String, user + " \\u " + log_msg)
+            redis.append(user,log_msg)
         }
-        counter += 1
     }
 }

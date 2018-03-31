@@ -34,6 +34,12 @@ endpoints:
 
 ---
 grails:
+    redis-gorm:
+        host: "192.168.1.148"
+        port: 6379
+        pooled: true
+        resources: 15
+        timeout: 5000
     gorm:
         failOnError: true
         autoFlush: true
@@ -95,7 +101,7 @@ endpoints:
 hibernate:
     cache:
         queries: false
-        use_second_level_cache: true
+        use_second_level_cache: false
         use_query_cache: false
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
