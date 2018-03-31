@@ -2,7 +2,7 @@ package seng468project
 
 import seng468project.enums.TransactionStatusEnum
 
-class Transaction {
+class StockTransaction {
 
     static hasOne = [user:User]
     TransactionStatusEnum status

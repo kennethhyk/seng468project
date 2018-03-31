@@ -1,10 +1,7 @@
 package seng468project
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
-import groovyx.net.http.AsyncHTTPBuilder
-
+import redis.clients.jedis.Jedis
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.AccountTransactionTypeBean
 import seng468project.beans.UserCommandTypeBean
@@ -252,8 +249,12 @@ class AuditService {
 //        writer.write(footer)
 //        writer.close()
 //    }
-
+    def redisService
+    Integer counter = 1
     def dispatch(String user, String log_msg) {
-        new LogHistory(user,log_msg).save(flush:true)
+        redisService.withRedis { Jedis redis ->
+            redis.set(counter as String, user + " \\u " + log_msg)
+        }
+        counter += 1
     }
 }

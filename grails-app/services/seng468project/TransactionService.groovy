@@ -26,7 +26,7 @@ class TransactionService {
         if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             return "you don't have enough money"
         }
-        new Transaction(
+        new StockTransaction(
                 user: user,
                 status: TransactionStatusEnum.BUY,
                 stockSymbol: stockSymbol,
@@ -40,10 +40,10 @@ class TransactionService {
     String commitBuy(User user) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<Transaction>
+        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<StockTransaction>
 
-        Transaction transaction = t[0]
+        StockTransaction transaction = t[0]
 
         if(!transaction) {
             return "No active buy was found for user $user.username"
@@ -61,7 +61,7 @@ class TransactionService {
         user.balance = user.balance - (sharesToBuy*transaction.quotedPrice)
         user.save(flush: true)
         transaction.status = TransactionStatusEnum.COMMIT_BUY
-        transaction.save(flush: true)
+        //transaction.save(flush: true)
 
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         return res
@@ -70,10 +70,10 @@ class TransactionService {
 //    @Timed(value='TransactionService.cancelbuy', useClassPrefix = false)
     String cancelBuy(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<Transaction>
+        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<StockTransaction>
 
-        Transaction transaction = t[0]
+        StockTransaction transaction = t[0]
 
         if(!transaction) {
             return "You dont have an active trasaction"
@@ -95,7 +95,7 @@ class TransactionService {
         if(dbService.getUserStocks(user,stockSymbol) < sharesToSell) {
             return "you don't have enough share"
         }
-        new Transaction(
+        new StockTransaction(
                 user: user,
                 status: TransactionStatusEnum.SELL,
                 stockSymbol: stockSymbol,
@@ -109,10 +109,10 @@ class TransactionService {
 //    @Timed(value='TransactionService.commitsell', useClassPrefix = false)
     String commitSell(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<Transaction>
+        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<StockTransaction>
 
-        Transaction transaction = t[0]
+        StockTransaction transaction = t[0]
         if(!transaction) {
             return "No active sell was found for user $user.username"
         }
@@ -133,10 +133,10 @@ class TransactionService {
     String cancelSell(User user) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = Transaction.executeQuery("select t from Transaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<Transaction>
+        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
+                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<StockTransaction>
 
-        Transaction transaction = t[0]
+        StockTransaction transaction = t[0]
 
         if(!transaction) {
             return "You dont have an active transaction"

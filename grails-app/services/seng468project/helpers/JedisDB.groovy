@@ -10,11 +10,11 @@ import redis.clients.jedis.JedisPoolConfig
 class JedisDB {
     Jedis jedis
 
-    JedisDB() {
+    JedisDB(String host, Integer port) {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig()
         jedisPoolConfig.setMaxTotal(50000)
         jedisPoolConfig.setMaxWaitMillis(1000)
-        JedisPool pool = new JedisPool(jedisPoolConfig, "192.168.1.148", 44445, 1000)
+        JedisPool pool = new JedisPool(jedisPoolConfig, host, port, 1000)
         jedis = pool.getResource()
     }
 

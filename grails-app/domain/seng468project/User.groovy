@@ -5,7 +5,7 @@ class User {
     String username
     BigDecimal balance
     BigDecimal reservedBalance
-    static hasMany = [transactionList: Transaction]
+    static hasMany = [transactionList: StockTransaction]
 
     BigDecimal realBalance() {
         return this.balance.subtract(this.reservedBalance)
