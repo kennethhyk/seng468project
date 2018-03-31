@@ -8,14 +8,14 @@ class DbService {
     def addAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
         user.balance = user.balance.add(bd_amount)
-        user.save(flush: true)
+//        user.save(flush: true)
         return amount
     }
 
     def removeAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
         user.balance = user.balance.subtract(bd_amount)
-        user.save(flush: true)
+//        user.save(flush: true)
         return amount
     }
 
@@ -30,47 +30,48 @@ class DbService {
     }
 
     Integer getUserStocks(User user, String symbol){
-        def t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
-                [user.id,symbol])[0]
-        if(t){
-            return t.shares
+//        def t = StockShares.executeQuery("from StockShares where user_id = ? and stockSymbol = ?",
+//                ['user': user.id,'symbol': symbol])[0]
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+        if(stockShares){
+            return stockShares.shares
         }else {
             return 0
         }
     }
 
     def addStockShares(User user, String symbol, Integer shares){
-        StockShares t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
-                [user.id,symbol])[0] as StockShares
-        if(!t){
-            new StockShares(user_id: user.id,stockSymbol: symbol,shares: shares).save(flush:true)
+        //        def t = StockShares.executeQuery("select s from StockShares as s where s.user_id = ? and s.stockSymbol = ?", [user.id,symbol]) as List<StockShares>
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+//        StockShares stockShares = t[0]
+        if(!stockShares){
+            new StockShares(user_id: user.id,stockSymbol: symbol,shares: shares).save(flush: true)
         }else{
-            t.shares += shares
-            t.save(flush:true)
+            stockShares.shares += shares
+//            stockShares.save(flush: true)
         }
     }
 
     def removeStockShares(User user, String symbol, Integer shares){
-        StockShares t = StockShares.executeQuery("from StockShares where user_id = ? and stock_symbol = ?",
-                [user.id,symbol])[0] as StockShares
-        if(!t){
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+        if(!stockShares){
             return 0
         }
-        t.shares -= shares
-        t.save(flush:true)
+        stockShares.shares -= shares
+//        stockShares.save(flush: true)
         return 1
     }
 
     def reserveMoney(User user, BigDecimal reserveAmount){
         user.balance -= reserveAmount
         user.reservedBalance += reserveAmount
-        user.save(flush: true)
+//        user.save(flush: true)
     }
 
     def releaseReservedMoney(User user, BigDecimal releaseAmount){
         user.balance = user.balance.add(releaseAmount)
         user.reservedBalance = user.reservedBalance.subtract(releaseAmount)
-        user.save(flush: true)
+//        user.save(flush: true)
     }
 
     def userExists(String userId){

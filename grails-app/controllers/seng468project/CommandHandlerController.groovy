@@ -10,7 +10,7 @@ class CommandHandlerController {
     def commandHandlerService
     def dbService
 
-//    @Timed(value='commandhandlerController.index', useClassPrefix = false)
+
     def index() {
         def res = request.JSON
         String commandString = res.command
@@ -22,7 +22,11 @@ class CommandHandlerController {
         } else if(commandBean.parameterList == null) {
             render text:"number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}"
         } else {
-            String response = commandHandlerService.commandHandling(commandBean, transactionNum)
+            try {
+                String response = commandHandlerService.commandHandling(commandBean, transactionNum)
+            } catch (Exception e) {
+                System.out.println(e)
+            }
             render text: "$response"
         }
     }

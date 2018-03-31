@@ -8,12 +8,12 @@ grails:
     spring:
         transactionManagement:
             proxies: false
-    dropwizard:
-            metrics:
-                reporterFrequency: 10 # report every 10 seconds
-                csv-reporter:
-                    active: true
-                    output-dir: /report
+#    dropwizard:
+#            metrics:
+#                reporterFrequency: 10 # report every 10 seconds
+#                csv-reporter:
+#                    active: true
+#                    output-dir: /report
 info:
     app:
         name: '@info.app.name@'
@@ -138,7 +138,7 @@ environments:
             properties:
                 jmxEnabled: true
                 initialSize: 50
-                maxActive: 50
+                maxActive: 500
                 minIdle: 5
                 maxIdle: 10
                 maxWait: 10000

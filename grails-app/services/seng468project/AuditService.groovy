@@ -1,6 +1,7 @@
 package seng468project
 
 import grails.transaction.Transactional
+import grails.util.Environment
 import redis.clients.jedis.Jedis
 import seng468project.beans.QuoteServerTypeBean
 import seng468project.beans.AccountTransactionTypeBean
@@ -8,7 +9,7 @@ import seng468project.beans.UserCommandTypeBean
 
 @Transactional
 class AuditService {
-
+    def redisService
 //    static transactional = false
     String header = "<?xml version=\"1.0\"?>\n" +
             "<log>\n"
@@ -46,8 +47,8 @@ class AuditService {
     }
 
     String displaySummary(User usr){
-        String str = "Balance: " + usr.balance.toString() + '\n' +
-                "Reserved balance: " + usr.reservedBalance.toString() + '\n'
+//        String str = "Balance: " + usr.balance.toString() + '\n' +
+//                "Reserved balance: " + usr.reservedBalance.toString() + '\n'
 
         //str += "Stocks owned: {\n"
         //for (stock in usr.stockShareMap){
@@ -55,36 +56,37 @@ class AuditService {
         //}
         //str += "}\n\n"
 
-        str += "Transaction records: {\n"
-        usr.transactionList.each {
-            str += "\t[\n" +
-                    "\t\tTime: " + it.dateCreated + "\n" +
-                    "\t\tTransaction status: " + it.status + "\n" +
-                    "\t\tQuoted price: " + it.quotedPrice + "\n" +
-                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
-                    "\t\tAmount:" + it.amount + "\n" +
-                    "\t]\n"
-        }
-        str += "}\n\n"
-
-        def triggers = TransactionTrigger.createCriteria().list{
-            eq 'user',usr
-        } as List<TransactionTrigger>
-
-        str += "Trigger records: {\n"
-        triggers.each{
-            str += "\t[\n" +
-                    "\t\tBuy/sell amount: " + it.buySellAmount + "\n" +
-                    "\t\tTrigger status: " + it.status + "\n" +
-                    "\t\tTrigger price: " + it.triggerPrice + "\n" +
-                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
-                    "\t]\n"
-        }
-        str += "}\n\n"
-
-//        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
-//        log.info(str)
-        return str
+//        str += "Transaction records: {\n"
+//        usr.transactionList.each {
+//            str += "\t[\n" +
+//                    "\t\tTime: " + it.dateCreated + "\n" +
+//                    "\t\tTransaction status: " + it.status + "\n" +
+//                    "\t\tQuoted price: " + it.quotedPrice + "\n" +
+//                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
+//                    "\t\tAmount:" + it.amount + "\n" +
+//                    "\t]\n"
+//        }
+//        str += "}\n\n"
+//
+//        def triggers = TransactionTrigger.createCriteria().list{
+//            eq 'user',usr
+//        } as List<TransactionTrigger>
+//
+//        str += "Trigger records: {\n"
+//        triggers.each{
+//            str += "\t[\n" +
+//                    "\t\tBuy/sell amount: " + it.buySellAmount + "\n" +
+//                    "\t\tTrigger status: " + it.status + "\n" +
+//                    "\t\tTrigger price: " + it.triggerPrice + "\n" +
+//                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
+//                    "\t]\n"
+//        }
+//        str += "}\n\n"
+//
+////        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
+////        log.info(str)
+//        return str
+        return ""
     }
 
     def auditUserCommand(UserCommandTypeBean obj){
@@ -249,10 +251,21 @@ class AuditService {
 //        writer.write(footer)
 //        writer.close()
 //    }
-    def redisService
+
     def dispatch(String user, String log_msg) {
-        redisService.withRedis { Jedis redis ->
-            redis.append(user,log_msg)
+//        new LogHistory(user,log_msg).save(flush: true)
+//        def postBody = [user: user, log_msg: log_msg]
+//        if(Environment.current == Environment.PRODUCTION) {
+//            def http = new AsyncHTTPBuilder(
+//                    poolSize : 1,
+//                    uri : 'http://192.168.1.149:44445',
+//                    contentType : JSON )
+//            http.post(path: '/audit/save', body: postBody)
+//        }
+        if (Environment.current == Environment.PRODUCTION) {
+            redisService.withRedis { Jedis redis ->
+                redis.append(user,log_msg)
+            }
         }
     }
 }

@@ -19,11 +19,9 @@ class TransactionService {
         if(userBalance.compareTo(price) == -1) return false
         return true
     }
-//    @Timed(value='TransactionService.buy', useClassPrefix = false)
     String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
-
-        if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
+        if((user.realBalance() < amountPrice) && (user.realBalance() < quote.price)) {
             return "you don't have enough money"
         }
         new StockTransaction(
@@ -36,38 +34,34 @@ class TransactionService {
         return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
 
-//    @Timed(value='TransactionService.commitbuy', useClassPrefix = false)
     String commitBuy(User user) {
-
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
-        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<StockTransaction>
+        def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = :user and t.status = :status and t.dateCreated> :dateCreated order by t.dateCreated desc",
+                ['user': user, 'status': TransactionStatusEnum.BUY, 'dateCreated': sixtySecondsAgo]) as List<StockTransaction>
 
         StockTransaction transaction = t[0]
 
         if(!transaction) {
             return "No active buy was found for user $user.username"
         }
+////        transaction.discard()
+
         if(user.realBalance() < transaction.amount) {
             return "you don't have enough money"
         }
         if(transaction.amount < transaction.quotedPrice){
             return "your purchase amount wont be able to buy one share"
         }
-
+        transaction.status = TransactionStatusEnum.COMMIT_BUY
         BigDecimal shareAmount = transaction.amount/transaction.quotedPrice
         BigDecimal sharesToBuy = shareAmount.setScale(0, RoundingMode.FLOOR)
         dbService.addStockShares(transaction.user,transaction.stockSymbol,sharesToBuy.intValueExact())
         user.balance = user.balance - (sharesToBuy*transaction.quotedPrice)
-        user.save(flush: true)
-        transaction.status = TransactionStatusEnum.COMMIT_BUY
-        //transaction.save(flush: true)
-
+//        transaction.attach()
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         return res
     }
 
-//    @Timed(value='TransactionService.cancelbuy', useClassPrefix = false)
     String cancelBuy(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
@@ -80,12 +74,10 @@ class TransactionService {
         }
 
         transaction.status = TransactionStatusEnum.CANCEL_BUY
-        transaction.save(flush: true)
 
         return "Canceled successfully"
     }
 
-//    @Timed(value='TransactionService.sell', useClassPrefix = false)
     String sell(User user, String stockSymbol, BigDecimal sellPriceAmount, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
 
@@ -106,7 +98,6 @@ class TransactionService {
         return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price, Please send COMMIT_SELL to confirm"
     }
 
-//    @Timed(value='TransactionService.commitsell', useClassPrefix = false)
     String commitSell(User user) {
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
@@ -116,20 +107,18 @@ class TransactionService {
         if(!transaction) {
             return "No active sell was found for user $user.username"
         }
+//        transaction.discard()
         if(dbService.getUserStocks(user,transaction.stockSymbol) < transaction.amount) {
             return "you don't have enough share"
         }
         BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2, RoundingMode.FLOOR)
         dbService.removeStockShares(user,transaction.stockSymbol,transaction.amount as Integer)
         user.balance = user.balance + sellPriceAmount
-        user.save(flush: true)
         transaction.status = TransactionStatusEnum.COMMIT_SELL
-        transaction.save(flush: true)
-
+//        transaction.attach()
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         return res
     }
-//    @Timed(value='TransactionService.cancelsell', useClassPrefix = false)
     String cancelSell(User user) {
 
         Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
@@ -143,7 +132,6 @@ class TransactionService {
         }
 
         transaction.status = TransactionStatusEnum.CANCEL_SELL
-        transaction.save(flush: true)
 
         return "Canceled successfully"
     }
@@ -151,7 +139,6 @@ class TransactionService {
     /***************************************************************
         TRIGGER SECTION
      **************************************************************/
-//    @Timed(value='TransactionService.triggerExists', useClassPrefix = false)
     Boolean triggerExists(User user, String stockSymbol, String type){
         if( type == "BUY" ){
             if(TransactionTrigger.createCriteria().get{
@@ -177,9 +164,7 @@ class TransactionService {
         return false
     }
 
-//    @Timed(value='TransactionService.setBuyAmount', useClassPrefix = false)
     String setBuyAmount(User user, String stockSymbol, BigDecimal amount, int transactionNum){
-        // if trigger already exitst, don't proceed any further
         if(triggerExists(user,stockSymbol,"BUY")) {
             return "TransactionTrigger for $stockSymbol already exists"
         }
@@ -209,7 +194,6 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
-//    @Timed(value='TransactionService.canselSetBuy', useClassPrefix = false)
     String cancelSetBuy(User user,String stockSymbol){
         // find the trigger
 
@@ -226,47 +210,40 @@ class TransactionService {
         if(!record) {
             return "no trigger record found"
         }
-
+//        record.discard()
         // release money
         if(!dbService.releaseReservedMoney(user,record.reservedBalance)){
             return "user not found"
         }
 
         record.status = TriggerStatusEnum.CANCELED
-        record.save(flush: true)
+//        record.attach()
 
         return "set_buy canceled"
     }
 
-//    @Timed(value='TransactionService.setBuyTrigger', useClassPrefix = false)
     String setBuyTrigger(User user, String stockSymbol, BigDecimal amount){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol
             eq 'status', TriggerStatusEnum.SET_BUY
         } as TransactionTrigger
-
         if(!record) {
             return "no record found, please set buy amount first"
         }
-
+//        record.discard()
         record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
-        record.save(flush: true)
+//        record.attach()
 
         return "buy trigger set"
     }
 
-    //TODO: add function to handle buy trigger
-//    @Timed(value='TransactionService.setSellAmount', useClassPrefix = false)
     String setSellAmount(User user, String stockSymbol, BigDecimal amount){
-        // check no other triggers for the same symbol
         if(triggerExists(user,stockSymbol,"SELL")) {
             return "TransactionTrigger for $stockSymbol already exists"
         }
 
-        // TODO: relate trigger table to user table
-        // create new trigger to table
         new TransactionTrigger(
                 user,
                 stockSymbol,
@@ -280,7 +257,6 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
-//    @Timed(value='TransactionService.setSellTrigger', useClassPrefix = false)
     String setSellTrigger(User user, String stockSymbol, BigDecimal amount){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
@@ -291,7 +267,7 @@ class TransactionService {
         if(!record) {
             return "no record found, please set sell amount first"
         }
-
+//        record.discard()
         if(amount<= new BigDecimal("0.00")){
             return "cannot set amount smaller or equal to 0"
         }
@@ -306,12 +282,11 @@ class TransactionService {
         record.reservedShares = sharesToSell.intValueExact()
         record.triggerPrice = amount
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
-        record.save(flush: true)
+//        record.attach()
 
         return "sell trigger set"
     }
 
-//    @Timed(value='TransactionService.cancelSetCell', useClassPrefix = false)
     String cancelSetSell(User user,String stockSymbol){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
@@ -324,13 +299,11 @@ class TransactionService {
         if(!record) {
             return "no trigger record found"
         }
-
-        // release shares
+//        record.discard()
         dbService.addStockShares(user,record.stockSymbol,record.reservedShares)
 
         record.status = TriggerStatusEnum.CANCELED
-        record.save(flush: true)
-
+//        record.attach()
         return "set_sell canceled"
     }
 
@@ -360,7 +333,7 @@ class TransactionService {
                 dbService.addAmount(it.user, amountToReturn.toString())
                 dbService.addStockShares(it.user,it.stockSymbol,sharesToBuy.intValueExact())
                 it.user.reservedBalance -= it.reservedBalance
-                it.user.save(flush: true)
+//                it.user.save(flush: true)
                 it.status = TriggerStatusEnum.DONE
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell

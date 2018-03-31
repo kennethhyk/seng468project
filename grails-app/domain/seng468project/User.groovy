@@ -5,7 +5,7 @@ class User {
     String username
     BigDecimal balance
     BigDecimal reservedBalance
-    static hasMany = [transactionList: StockTransaction]
+//    static hasMany = [transactionList: Transaction]
 
     BigDecimal realBalance() {
         return this.balance.subtract(this.reservedBalance)
@@ -19,7 +19,7 @@ class User {
     public String toString() {
         return "User{" +
                 ", version=" + version +
-                ", transactionList=" + transactionList +
+//                ", transactionList=" + transactionList +
                 ", username='" + username + '\'' +
                 ", balance=" + balance +
                 ", reservedBalance=" + reservedBalance +
