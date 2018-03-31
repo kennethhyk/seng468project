@@ -1,6 +1,8 @@
 ---
 grails:
     profile: web
+    servlet:
+        version: 3.0
     codegen:
         defaultPackage: seng468project
     spring:
@@ -32,6 +34,9 @@ endpoints:
 
 ---
 grails:
+    gorm:
+        failOnError: true
+        autoFlush: true
     mime:
         disable:
             accept:
@@ -104,8 +109,8 @@ dataSource:
 environments:
     development:
         dataSource:
-            dbCreate: update
-            url: jdbc:mysql://192.168.1.130:44445/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+            dbCreate: create-drop
+            url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://localhost/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
             username : "root"
@@ -127,7 +132,7 @@ environments:
             properties:
                 jmxEnabled: true
                 initialSize: 50
-                maxActive: 5000
+                maxActive: 50
                 minIdle: 5
                 maxIdle: 10
                 maxWait: 10000

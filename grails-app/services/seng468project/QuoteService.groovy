@@ -48,7 +48,7 @@ class QuoteService {
                 123192 as Long,
                 "this is the cryptokey"
             )
-            String str = auditService.getQuoteServerString(record)
+            auditService.dispatch( user.username, auditService.getQuoteServerString(record))
         }
 
         return record

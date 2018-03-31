@@ -1,5 +1,8 @@
 package seng468project
 
+import seng468project.beans.CommandBean
+import seng468project.beans.UserCommandTypeBean
+
 //import grails.plugin.dropwizard.metrics.timers.Timed
 
 class CommandHandlerController {
@@ -9,11 +12,19 @@ class CommandHandlerController {
 
 //    @Timed(value='commandhandlerController.index', useClassPrefix = false)
     def index() {
-            def res = request.JSON
-            String commandString = res.command
-            int transactionNum = res.transaction as Integer
-            String response = commandHandlerService.commandHandling(commandString, transactionNum)
-            render text: "$commandString"
+        def res = request.JSON
+        String commandString = res.command
+        int transactionNum = res.transaction as Integer
+
+        CommandBean commandBean = commandHandlerService.parseCommandAndCreateCommandBean(commandString)
+        if(commandBean.command == null) {
+            render text: "COMMAND NOT RECOGNIZED"
+        } else if(commandBean.parameterList == null) {
+            render text:"number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}"
+        } else {
+            String response = commandHandlerService.commandHandling(commandBean, transactionNum)
+            render text: "$response"
+        }
     }
 
     def addUser(){
