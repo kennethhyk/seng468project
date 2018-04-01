@@ -11,9 +11,9 @@ import seng468project.beans.UserCommandTypeBean
 class AuditService {
     def redisService
 //    static transactional = false
-    String header = "<?xml version=\"1.0\"?>\n" +
-            "<log>\n"
-    String footer = "\n</log>"
+    String header = "<?xml version=\"1.0\"?>" +
+            "<log>"
+    String footer = "</log>"
 
     String dumpLog(String filename){
 //        String username = null
@@ -47,41 +47,41 @@ class AuditService {
     }
 
     String displaySummary(User usr){
-//        String str = "Balance: " + usr.balance.toString() + '\n' +
-//                "Reserved balance: " + usr.reservedBalance.toString() + '\n'
+//        String str = "Balance: " + usr.balance.toString() + '' +
+//                "Reserved balance: " + usr.reservedBalance.toString() + ''
 
-        //str += "Stocks owned: {\n"
+        //str += "Stocks owned: {"
         //for (stock in usr.stockShareMap){
-        //    str += " - " + stock.key + " : " + stock.value + "\n"
+        //    str += " - " + stock.key + " : " + stock.value + ""
         //}
-        //str += "}\n\n"
+        //str += "}"
 
-//        str += "Transaction records: {\n"
+//        str += "Transaction records: {"
 //        usr.transactionList.each {
-//            str += "\t[\n" +
-//                    "\t\tTime: " + it.dateCreated + "\n" +
-//                    "\t\tTransaction status: " + it.status + "\n" +
-//                    "\t\tQuoted price: " + it.quotedPrice + "\n" +
-//                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
-//                    "\t\tAmount:" + it.amount + "\n" +
-//                    "\t]\n"
+//            str += "\t[" +
+//                    "\t\tTime: " + it.dateCreated + "" +
+//                    "\t\tTransaction status: " + it.status + "" +
+//                    "\t\tQuoted price: " + it.quotedPrice + "" +
+//                    "\t\tStock symbol: " + it.stockSymbol + "" +
+//                    "\t\tAmount:" + it.amount + "" +
+//                    "\t]"
 //        }
-//        str += "}\n\n"
+//        str += "}"
 //
 //        def triggers = TransactionTrigger.createCriteria().list{
 //            eq 'user',usr
 //        } as List<TransactionTrigger>
 //
-//        str += "Trigger records: {\n"
+//        str += "Trigger records: {"
 //        triggers.each{
-//            str += "\t[\n" +
-//                    "\t\tBuy/sell amount: " + it.buySellAmount + "\n" +
-//                    "\t\tTrigger status: " + it.status + "\n" +
-//                    "\t\tTrigger price: " + it.triggerPrice + "\n" +
-//                    "\t\tStock symbol: " + it.stockSymbol + "\n" +
-//                    "\t]\n"
+//            str += "\t[" +
+//                    "\t\tBuy/sell amount: " + it.buySellAmount + "" +
+//                    "\t\tTrigger status: " + it.status + "" +
+//                    "\t\tTrigger price: " + it.triggerPrice + "" +
+//                    "\t\tStock symbol: " + it.stockSymbol + "" +
+//                    "\t]"
 //        }
-//        str += "}\n\n"
+//        str += "}"
 //
 ////        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
 ////        log.info(str)
@@ -92,126 +92,126 @@ class AuditService {
     def auditUserCommand(UserCommandTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<userCommandType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</UserCommandType>\n")
+        writer.write("<userCommandType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <command>" + obj.command+ "</command>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <filename>" + obj.filename+ "</filename>" +
+                "   <funds>" + obj.funds+ "</funds>" +
+                "</UserCommandType>")
         writer.close()
     }
 
     String getUserCommandString(UserCommandTypeBean obj){
-        return "    <userCommand>\n" +
-                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "       <server>" + obj.server+ "</server>\n" +
-                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "       <command>" + obj.command+ "</command>\n" +
-                "       <username>" + obj.username+ "</username>\n" +
-                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "       <filename>" + obj.filename+ "</filename>\n" +
-                "       <funds>" + obj.funds+ "</funds>\n" +
-                "   </userCommand>\n"
+        return  " <userCommand>" +
+                "<timestamp>" + obj.timestamp+ "</timestamp>" +
+                "<server>" + obj.server+ "</server>" +
+                "<transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "<command>" + obj.command+ "</command>" +
+                "<username>" + obj.username+ "</username>" +
+                "<stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "<filename>" + obj.filename+ "</filename>" +
+                "<funds>" + obj.funds+ "</funds>" +
+                "</userCommand> "
     }
 
     def auditQuoteServerRecord(QuoteServerTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<QuoteServerType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <price>" + obj.price+ "</price>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>\n" +
-                "   <cryptokey>" + obj.cryptoKey+ "</cryptokey>\n" +
-                "</QuoteServerType>\n")
+        writer.write("<QuoteServerType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <price>" + obj.price+ "</price>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>" +
+                "   <cryptokey>" + obj.cryptoKey+ "</cryptokey>" +
+                "</QuoteServerType>")
         writer.close()
     }
 
     String getQuoteServerString(QuoteServerTypeBean obj){
-        return "    <quoteServer>\n" +
-                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "       <server>" + obj.server+ "</server>\n" +
-                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "       <price>" + obj.price+ "</price>\n" +
-                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "       <username>" + obj.username+ "</username>\n" +
-                "       <quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>\n" +
-                "       <cryptokey>" + obj.cryptoKey+ "</cryptokey>\n" +
-                "   </quoteServer>\n"
+        return "<quoteServer>" +
+                "<timestamp>" + obj.timestamp+ "</timestamp>" +
+                "<server>" + obj.server+ "</server>" +
+                "<transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "<price>" + obj.price+ "</price>" +
+                "<stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "<username>" + obj.username+ "</username>" +
+                "<quoteServerTime>" + obj.quoteServerTime+ "</quoteServerTime>" +
+                "<cryptokey>" + obj.cryptoKey+ "</cryptokey>" +
+                "</quoteServer>"
     }
 
     def auditAccountTransaction(AccountTransactionTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<AccountTransactionType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</AccountTransactionType>\n")
+        writer.write("<AccountTransactionType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <funds>" + obj.funds+ "</funds>" +
+                "</AccountTransactionType>")
         writer.close()
     }
 
     String getAccountTransactionString(AccountTransactionTypeBean obj){
-        return "    <accountTransaction>\n" +
-                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "       <server>" + obj.server+ "</server>\n" +
-                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "       <action>" + obj.action+ "</action>\n" +
-                "       <username>" + obj.username+ "</username>\n" +
-                "       <funds>" + obj.funds+ "</funds>\n" +
-                "   </accountTransaction>\n"
+        return "    <accountTransaction>" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "       <server>" + obj.server+ "</server>" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "       <action>" + obj.action+ "</action>" +
+                "       <username>" + obj.username+ "</username>" +
+                "       <funds>" + obj.funds+ "</funds>" +
+                "   </accountTransaction>"
     }
 
     def auditSystemEvents(UserCommandTypeBean obj){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<SystemEventType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
-                "</SystemEventType>\n")
+        writer.write("<SystemEventType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <command>" + obj.command+ "</command>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <filename>" + obj.filename+ "</filename>" +
+                "   <funds>" + obj.funds+ "</funds>" +
+                "</SystemEventType>")
         writer.close()
     }
 
     String getSystemEventString(UserCommandTypeBean obj){
-        return "    <systemEvent>\n" +
-                "       <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "       <server>" + obj.server+ "</server>\n" +
-                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "       <command>" + obj.command+ "</command>\n" +
-                "       <username>" + obj.username+ "</username>\n" +
-                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "       <filename>" + obj.filename+ "</filename>\n" +
-                "       <funds>" + obj.funds+ "</funds>\n" +
-                "   </systemEvent>\n"
+        return "    <systemEvent>" +
+                "       <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "       <server>" + obj.server+ "</server>" +
+                "       <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "       <command>" + obj.command+ "</command>" +
+                "       <username>" + obj.username+ "</username>" +
+                "       <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "       <filename>" + obj.filename+ "</filename>" +
+                "       <funds>" + obj.funds+ "</funds>" +
+                "   </systemEvent>"
     }
 
-    String saveErrorEvent(User user, UserCommandTypeBean obj, String err_msg){
-         String str = "<errorEvent>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + "0.00" + "</funds>\n" +
-                "   <errorMessage>" + err_msg+ "</errorMessage>\n" +
-                "</errorEvent>\n"
+    String getErrorEventString(UserCommandTypeBean obj, String err_msg){
+         String str = "<errorEvent>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <command>" + obj.command+ "</command>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <filename>" + obj.filename+ "</filename>" +
+                "   <funds>" + "0.00" + "</funds>" +
+                "   <errorMessage>" + err_msg+ "</errorMessage>" +
+                "</errorEvent>"
 
 //        new LogHistory(user,str).save()
     }
@@ -219,32 +219,32 @@ class AuditService {
     def auditDebug(UserCommandTypeBean obj, String dbg_msg){
         BufferedWriter writer = new BufferedWriter(new FileWriter("./logFile.xml"))
         writer.write(header)
-        writer.write("<DebugType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
+        writer.write("<DebugType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <command>" + obj.command+ "</command>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <filename>" + obj.filename+ "</filename>" +
+                "   <funds>" + obj.funds+ "</funds>" +
                 "   <debugMessage>" + dbg_msg+ "</debugMessage>" +
-                "</DebugType>\n")
+                "</DebugType>")
         writer.close()
     }
 
     String getDebugString(UserCommandTypeBean obj, String dbg_msg){
-        return "<DebugType>\n" +
-                "   <timestamp>" + obj.timestamp+ "</timestamp>\n" +
-                "   <server>" + obj.server+ "</server>\n" +
-                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>\n" +
-                "   <command>" + obj.command+ "</command>\n" +
-                "   <username>" + obj.username+ "</username>\n" +
-                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>\n" +
-                "   <filename>" + obj.filename+ "</filename>\n" +
-                "   <funds>" + obj.funds+ "</funds>\n" +
+        return "<DebugType>" +
+                "   <timestamp>" + obj.timestamp+ "</timestamp>" +
+                "   <server>" + obj.server+ "</server>" +
+                "   <transactionNum>" + obj.transactionNum+ "</transactionNum>" +
+                "   <command>" + obj.command+ "</command>" +
+                "   <username>" + obj.username+ "</username>" +
+                "   <stockSymbol>" + obj.stockSymbol+ "</stockSymbol>" +
+                "   <filename>" + obj.filename+ "</filename>" +
+                "   <funds>" + obj.funds+ "</funds>" +
                 "   <debugMessage>" + dbg_msg+ "</debugMessage>" +
-                "</DebugType>\n"
+                "</DebugType>"
     }
 
 //    def finishedLogging(){

@@ -21,7 +21,8 @@ class TransactionService {
     }
     String buy(User user, String stockSymbol, BigDecimal amountPrice, int transactionNum) {
         QuoteServerTypeBean quote = quoteService.getQuote(user, stockSymbol, transactionNum)
-        if((user.realBalance() < amountPrice) && (user.realBalance() < quote.price)) {
+
+        if(user.realBalance() < amountPrice && user.realBalance() < quote.price) {
             return "you don't have enough money"
         }
         new StockTransaction(
@@ -57,7 +58,10 @@ class TransactionService {
         BigDecimal sharesToBuy = shareAmount.setScale(0, RoundingMode.FLOOR)
         dbService.addStockShares(transaction.user,transaction.stockSymbol,sharesToBuy.intValueExact())
         user.balance = user.balance - (sharesToBuy*transaction.quotedPrice)
-//        transaction.attach()
+        user.save(flush: true)
+        transaction.status = TransactionStatusEnum.COMMIT_BUY
+        //transaction.save(flush: true)
+
         String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
         return res
     }
@@ -74,6 +78,7 @@ class TransactionService {
         }
 
         transaction.status = TransactionStatusEnum.CANCEL_BUY
+        transaction.save(flush: true)
 
         return "Canceled successfully"
     }
@@ -114,8 +119,10 @@ class TransactionService {
         BigDecimal sellPriceAmount = (transaction.amount * transaction.quotedPrice).setScale(2, RoundingMode.FLOOR)
         dbService.removeStockShares(user,transaction.stockSymbol,transaction.amount as Integer)
         user.balance = user.balance + sellPriceAmount
+        user.save(flush: true)
         transaction.status = TransactionStatusEnum.COMMIT_SELL
-//        transaction.attach()
+        transaction.save(flush: true)
+
         String res = "Success! You just sell ${transaction.amount}shares of \"$transaction.stockSymbol\", $sellPriceAmount has added to your account."
         return res
     }
@@ -132,6 +139,7 @@ class TransactionService {
         }
 
         transaction.status = TransactionStatusEnum.CANCEL_SELL
+        transaction.save(flush: true)
 
         return "Canceled successfully"
     }
@@ -217,7 +225,7 @@ class TransactionService {
         }
 
         record.status = TriggerStatusEnum.CANCELED
-//        record.attach()
+        record.save(flush: true)
 
         return "set_buy canceled"
     }
@@ -231,10 +239,10 @@ class TransactionService {
         if(!record) {
             return "no record found, please set buy amount first"
         }
-//        record.discard()
+
         record.status = TriggerStatusEnum.SET_BUY_TRIGGER
         record.triggerPrice = amount
-//        record.attach()
+        record.save(flush: true)
 
         return "buy trigger set"
     }
@@ -267,7 +275,7 @@ class TransactionService {
         if(!record) {
             return "no record found, please set sell amount first"
         }
-//        record.discard()
+
         if(amount<= new BigDecimal("0.00")){
             return "cannot set amount smaller or equal to 0"
         }
@@ -282,7 +290,7 @@ class TransactionService {
         record.reservedShares = sharesToSell.intValueExact()
         record.triggerPrice = amount
         record.status = TriggerStatusEnum.SET_SELL_TRIGGER
-//        record.attach()
+        record.save(flush: true)
 
         return "sell trigger set"
     }
@@ -299,11 +307,13 @@ class TransactionService {
         if(!record) {
             return "no trigger record found"
         }
-//        record.discard()
+
+        // release shares
         dbService.addStockShares(user,record.stockSymbol,record.reservedShares)
 
         record.status = TriggerStatusEnum.CANCELED
-//        record.attach()
+        record.save(flush: true)
+
         return "set_sell canceled"
     }
 
@@ -333,7 +343,7 @@ class TransactionService {
                 dbService.addAmount(it.user, amountToReturn.toString())
                 dbService.addStockShares(it.user,it.stockSymbol,sharesToBuy.intValueExact())
                 it.user.reservedBalance -= it.reservedBalance
-//                it.user.save(flush: true)
+                it.user.save(flush: true)
                 it.status = TriggerStatusEnum.DONE
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell
