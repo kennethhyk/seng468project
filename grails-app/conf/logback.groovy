@@ -42,11 +42,11 @@ if (Environment.isDevelopmentMode() && targetDir != null) {
 //    }
 //    logger("org.hibernate.SQL", DEBUG, ["FILE"], false)
 //    logger("org.hibernate.type.descriptor.sql.BasicBinder", TRACE, ["FILE"], false)
-    logger("StackTrace", ERROR, ['FULL_STACKTRACE', "FILE"], false)
-    logger("grails.app", DEBUG, ['FULL_STACKTRACE', 'STDOUT' , "FILE"], false)
-    logger("grails.app", INFO, ['FULL_STACKTRACE', 'STDOUT' , "FILE"], false)
-    root(ERROR, ['STDOUT', 'FULL_STACKTRACE', "FILE"])
-    root( INFO, ['STDOUT', "FILE"] )
+    logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false)
+    logger("grails.app", DEBUG, ['FULL_STACKTRACE', 'STDOUT'], false)
+    logger("grails.app1", INFO, ['FULL_STACKTRACE', 'STDOUT'], false)
+    root(ERROR, ['STDOUT', 'FULL_STACKTRACE'])
+    root( INFO, ['STDOUT'] )
 }
 else {
     root(ERROR, ['STDOUT'])

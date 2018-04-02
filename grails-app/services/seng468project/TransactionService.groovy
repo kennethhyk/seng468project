@@ -202,7 +202,7 @@ class TransactionService {
         return " Amount: '$amount' is set for stockSymbol: '$stockSymbol', please also set trigger"
     }
 
-    String cancelSetBuy(User user,String stockSymbol){
+    String cancelSetBuy(User user, String stockSymbol){
         // find the trigger
 
         def record = TransactionTrigger.createCriteria().get{
@@ -295,7 +295,7 @@ class TransactionService {
         return "sell trigger set"
     }
 
-    String cancelSetSell(User user,String stockSymbol){
+    String cancelSetSell(User user, String stockSymbol){
         def record = TransactionTrigger.createCriteria().get{
             eq'user',user
             eq 'stockSymbol',stockSymbol

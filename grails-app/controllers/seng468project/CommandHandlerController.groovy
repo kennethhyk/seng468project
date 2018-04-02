@@ -3,7 +3,6 @@ package seng468project
 import seng468project.beans.CommandBean
 import seng468project.beans.UserCommandTypeBean
 
-//import grails.plugin.dropwizard.metrics.timers.Timed
 
 class CommandHandlerController {
 
@@ -40,6 +39,10 @@ class CommandHandlerController {
             }
             render text: "$response"
         }
+    }
+
+    def front(){
+
     }
 
     def addUser(){

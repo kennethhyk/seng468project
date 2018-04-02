@@ -25,26 +25,23 @@ class QuoteService {
             redisService.withRedis { Jedis redis ->
                 value = redis.get(symbol)
             }
-                if(!value){
-                    client.start( ipaddress, port )
-                    res = client.sendMessage(symbol +"," + user.username)
-                    client.stop()
+            if(!value){
+                client.start( ipaddress, port )
+                res = client.sendMessage(symbol +"," + user.username)
+                client.stop()
 
-                    redisService.withRedis { Jedis redis ->
-                        redis.set(symbol, res,"NX","EX",60)
-                    }
-
-                    List<String> resList = res.split(",")
-                    record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-                    //auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
-                }else{
-                    res = value
-                    List<String> resList = res.split(",")
-                    record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                redisService.withRedis { Jedis redis ->
+                    redis.set(symbol, res,"NX","EX",60)
                 }
 
-
-
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
+            }else{
+                res = value
+                List<String> resList = res.split(",")
+                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+            }
         }else{
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
