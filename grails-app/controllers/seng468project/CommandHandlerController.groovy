@@ -41,14 +41,12 @@ class CommandHandlerController {
         }
     }
 
-    def front(){
-
-    }
-
     def addUser(){
         def res = request.JSON
         String userid = res.username
         dbService.addNewUser(res.username, '0.00')
         render text: "Created user $userid"
     }
+
+    def front(){ }
 }

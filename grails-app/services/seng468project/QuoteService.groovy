@@ -31,7 +31,7 @@ class QuoteService {
                 client.stop()
 
                 redisService.withRedis { Jedis redis ->
-                    redis.set(symbol, res,"NX","EX",60)
+                    redis.set(symbol, res,"NX","EX",30)
                 }
 
                 List<String> resList = res.split(",")

@@ -36,7 +36,8 @@ class CommandHandlerService {
                         commandBean.parameterList[1]
                 )
                 auditService.dispatch(user.username, auditService.getUserCommandString(obj))
-                return (dbService.addAmount(user, commandBean.parameterList[1]))
+                dbService.addAmount(user, commandBean.parameterList[1])
+                return "added"
                 break
 
             case "QUOTE":
