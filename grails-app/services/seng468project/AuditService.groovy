@@ -253,19 +253,8 @@ class AuditService {
 //    }
 
     def dispatch(String user, String log_msg) {
-//        new LogHistory(user,log_msg).save(flush: true)
-//        def postBody = [user: user, log_msg: log_msg]
-//        if(Environment.current == Environment.PRODUCTION) {
-//            def http = new AsyncHTTPBuilder(
-//                    poolSize : 1,
-//                    uri : 'http://192.168.1.149:44445',
-//                    contentType : JSON )
-//            http.post(path: '/audit/save', body: postBody)
-//        }
-        if (Environment.current == Environment.PRODUCTION) {
-            redisService.withRedis { Jedis redis ->
-                redis.append(user,log_msg)
-            }
+        redisService.withRedis { Jedis redis ->
+            redis.append(user,log_msg)
         }
     }
 }

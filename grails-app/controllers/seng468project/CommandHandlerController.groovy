@@ -19,7 +19,7 @@ class CommandHandlerController {
         CommandBean commandBean = commandHandlerService.parseCommandAndCreateCommandBean(commandString)
         if(commandBean.command == null) {
             render text: "COMMAND NOT RECOGNIZED"
-        } else if(commandBean.parameterList == null) {
+        } else if(!commandBean.validated) {
             UserCommandTypeBean obj = new UserCommandTypeBean(
                     System.currentTimeMillis(),
                     "TRANSACTION SERVER: ZaaS",

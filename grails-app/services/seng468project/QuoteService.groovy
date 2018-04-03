@@ -36,7 +36,7 @@ class QuoteService {
 
                     List<String> resList = res.split(",")
                     record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-                    //auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
+                    auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
                 }else{
                     res = value
                     List<String> resList = res.split(",")
