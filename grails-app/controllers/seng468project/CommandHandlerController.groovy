@@ -14,10 +14,11 @@ class CommandHandlerController {
         def res = request.JSON
         String commandString = res.command
         int transactionNum = res.transaction as Integer
-
+        String resp = ""
         CommandBean commandBean = commandHandlerService.parseCommandAndCreateCommandBean(commandString)
         if(commandBean.command == null) {
-            render text: "COMMAND NOT RECOGNIZED"
+            resp = "COMMAND NOT RECOGNIZED"
+            render status:200, contentType: "text/json", text: "[{\"response\": \"$resp\"}]"
         } else if(commandBean.parameterList == null) {
             UserCommandTypeBean obj = new UserCommandTypeBean(
                     System.currentTimeMillis(),
@@ -29,15 +30,16 @@ class CommandHandlerController {
                     "",
                     ""
             )
-            auditService.dispatch(commandBean.parameterList[0], auditService.getErrorEventString(obj,"number of parameters not match"))
-            render text:"number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}"
+            auditService.dispatch("transaction" + Integer.toString(transactionNum), auditService.getErrorEventString(obj,"number of parameters not match"))
+            resp = "number of parameters does not match command $commandBean.command, required ${commandBean.command.numberOfParameters}"
+            render status:200, contentType: "text/json", text: "[{\"response\": \"$resp\"}]"
         } else {
             try {
-                String response = commandHandlerService.commandHandling(commandBean, transactionNum)
+                resp = commandHandlerService.commandHandling(commandBean, transactionNum)
             } catch (Exception e) {
                 System.out.println(e)
             }
-            render text: "$response"
+            render status:200, contentType: "text/json", text: "[{\"response\": \"$resp\"}]"
         }
     }
 
@@ -45,7 +47,7 @@ class CommandHandlerController {
         def res = request.JSON
         String userid = res.username
         dbService.addNewUser(res.username, '0.00')
-        render text: "Created user $userid"
+        render status:200, contentType: "text/json", text: "[{\"response\": \"Created user $userid\"}]"
     }
 
     def front(){ }

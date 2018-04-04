@@ -32,7 +32,7 @@ class TransactionService {
                 quotedPrice: quote.price,
                 amount: amountPrice
         ).save(flush: true)
-        return "User $user.username requested to purchase $amountPrice\$ value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
+        return "User $user.username requested to purchase \$$amountPrice value of stock $stockSymbol at price $quote.price, Please send COMMIT_BUY to confirm"
     }
 
     String commitBuy(User user) {
@@ -61,9 +61,7 @@ class TransactionService {
         user.save(flush: true)
         transaction.status = TransactionStatusEnum.COMMIT_BUY
         //transaction.save(flush: true)
-
-        String res = "Success! You just purchased ${shareAmount}shares of \"$transaction.stockSymbol\", the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
-        return res
+        return "Success! You just purchased ${sharesToBuy} shares of $transaction.stockSymbol, the remaining ${transaction.amount.remainder(transaction.quotedPrice)} has returned to your account."
     }
 
     String cancelBuy(User user) {

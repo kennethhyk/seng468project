@@ -9,7 +9,7 @@ class DbService {
         BigDecimal bd_amount = new BigDecimal(amount)
         user.balance = user.balance.add(bd_amount)
 //        user.save(flush: true)
-        return amount
+        return "added $amount to $user.username"
     }
 
     def removeAmount(User user, String amount){

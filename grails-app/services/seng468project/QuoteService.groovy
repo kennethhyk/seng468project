@@ -34,14 +34,17 @@ class QuoteService {
                     redis.set(symbol, res,"NX","EX",30)
                 }
 
-                List<String> resList = res.split(",")
-                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-                auditService.dispatch( user.username, auditService.getQuoteServerString(record) )
-            }else{
-                res = value
-                List<String> resList = res.split(",")
-                record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
-            }
+                    List<String> resList = res.split(",")
+                    record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                    auditService.dispatch( "transaction" + Integer.toString(transactionNum), auditService.getQuoteServerString(record) )
+                }else{
+                    res = value
+                    List<String> resList = res.split(",")
+                    record = new QuoteServerTypeBean(System.currentTimeMillis(), "quoteserve.seng:"+ (port as String), transactionNum, resList[0], resList[1], resList[2], resList[3] as Long, resList[4])
+                }
+
+
+
         }else{
             record = new QuoteServerTypeBean(
                 System.currentTimeMillis(),
@@ -53,7 +56,7 @@ class QuoteService {
                 123192 as Long,
                 "this is the cryptokey"
             )
-            auditService.dispatch( user.username, auditService.getQuoteServerString(record))
+            auditService.dispatch( "transaction" + Integer.toString(transactionNum) as String, auditService.getQuoteServerString(record))
         }
 
         return record

@@ -247,11 +247,6 @@ class AuditService {
                 "</DebugType>"
     }
 
-//    def finishedLogging(){
-//        writer.write(footer)
-//        writer.close()
-//    }
-
     def dispatch(String user, String log_msg) {
 //        new LogHistory(user,log_msg).save(flush: true)
 //        def postBody = [user: user, log_msg: log_msg]
