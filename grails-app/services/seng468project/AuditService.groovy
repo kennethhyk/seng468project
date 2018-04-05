@@ -47,46 +47,48 @@ class AuditService {
     }
 
     String displaySummary(User usr){
-//        String str = "Balance: " + usr.balance.toString() + '' +
-//                "Reserved balance: " + usr.reservedBalance.toString() + ''
+        String str = "Balance: " + usr.balance.toString() +
+                " Reserved balance:  " + usr.reservedBalance.toString()
 
-        //str += "Stocks owned: {"
-        //for (stock in usr.stockShareMap){
-        //    str += " - " + stock.key + " : " + stock.value + ""
-        //}
-        //str += "}"
+        str += " Stocks owned{"
 
-//        str += "Transaction records: {"
-//        usr.transactionList.each {
-//            str += "\t[" +
-//                    "\t\tTime: " + it.dateCreated + "" +
-//                    "\t\tTransaction status: " + it.status + "" +
-//                    "\t\tQuoted price: " + it.quotedPrice + "" +
-//                    "\t\tStock symbol: " + it.stockSymbol + "" +
-//                    "\t\tAmount:" + it.amount + "" +
-//                    "\t]"
-//        }
-//        str += "}"
-//
-//        def triggers = TransactionTrigger.createCriteria().list{
-//            eq 'user',usr
-//        } as List<TransactionTrigger>
-//
-//        str += "Trigger records: {"
-//        triggers.each{
-//            str += "\t[" +
-//                    "\t\tBuy/sell amount: " + it.buySellAmount + "" +
-//                    "\t\tTrigger status: " + it.status + "" +
-//                    "\t\tTrigger price: " + it.triggerPrice + "" +
-//                    "\t\tStock symbol: " + it.stockSymbol + "" +
-//                    "\t]"
-//        }
-//        str += "}"
-//
-////        log.info("IAM AIOFJWIFJOWIFJWE+_dfj)ej(f)ej()fjw)(fej()w")
-////        log.info(str)
-//        return str
-        return ""
+        def stocks = StockShares.createCriteria().list{
+            eq 'user_id',usr.id
+        } as List<StockShares>
+
+        stocks.each{
+            str +=  it.stockSymbol + ":" + it.shares + " "
+        }
+        str += "}"
+
+        def transacs = StockTransaction.createCriteria().list{
+            eq 'user',usr
+        } as List<StockTransaction>
+
+        str += " Transaction records{"
+        transacs.each {
+            str +=  "Time :" + it.dateCreated  +
+                    " Transaction status: " + it.status  +
+                    " Quoted price: " + it.quotedPrice  +
+                    " Stock symbol: " + it.stockSymbol  +
+                    " Amount: " + it.amount
+        }
+        str += "}"
+
+        def triggers = TransactionTrigger.createCriteria().list{
+            eq 'user',usr
+        } as List<TransactionTrigger>
+
+        str += " Trigger records{"
+        triggers.each{
+            str +=  "Buy/sell amount: " + it.buySellAmount  +
+                    " Trigger status: " + it.status  +
+                    " Trigger price: " + it.triggerPrice  +
+                    " Stock symbol: " + it.stockSymbol
+        }
+        str += "}"
+
+        return str
     }
 
     def auditUserCommand(UserCommandTypeBean obj){

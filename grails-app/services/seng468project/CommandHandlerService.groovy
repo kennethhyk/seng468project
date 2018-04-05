@@ -223,6 +223,7 @@ class CommandHandlerService {
                 return (transactionService.cancelSetSell(user, commandBean.parameterList[1]))
 
             case "DUMPLOG":
+                String filename = commandBean.parameterList[0]
                 UserCommandTypeBean obj = new UserCommandTypeBean(
                         System.currentTimeMillis(),
                         "TRANSACTION SERVER: ZaaS",
@@ -230,11 +231,11 @@ class CommandHandlerService {
                         "DUMPLOG",
                         "zddbuzuoshi",
                         "",
-                        commandBean.parameterList[0],
+                        filename,
                         "0.00"
                 )
                 auditService.dispatch("zddbuzuoshi", auditService.getUserCommandString(obj))
-                return "DUMPLOG DONE!"
+                return "DUMP LOG TO: $filename!"
             case "DISPLAY_SUMMARY":
                 UserCommandTypeBean obj = new UserCommandTypeBean(
                         System.currentTimeMillis(),
@@ -247,7 +248,10 @@ class CommandHandlerService {
                         "0.00"
                 )
                 auditService.dispatch( "transaction" + Integer.toString(transactionNum), auditService.getUserCommandString(obj))
-                return "RESPONSE OF DISPLAY SUMMARY"
+                String summary = auditService.displaySummary(user)
+                return summary
         }
+
+        return "ERROR: command not handled!"
     }
 }

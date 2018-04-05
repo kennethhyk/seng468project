@@ -8,6 +8,7 @@ import seng468project.enums.CommandEnum
 class CommandBean {
     CommandEnum command
     List<String> parameterList
+    Boolean validated
 
     CommandBean(List<String> aCommand) {
         for(CommandEnum e : CommandEnum.values()){
@@ -21,8 +22,10 @@ class CommandBean {
         }
         if((aCommand.size()-1) == this.command.numberOfParameters) {
             this.parameterList = aCommand.subList(1,aCommand.size())
+            this.validated = true
         } else {
-            this.parameterList = null
+            this.parameterList = aCommand.subList(1,aCommand.size())
+            this.validated = false
         }
     }
 

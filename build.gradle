@@ -46,7 +46,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:5.1.2.Final"
     compile "org.hibernate:hibernate-ehcache:5.1.2.Final"
     compile "org.grails.plugins:grails-melody-plugin:1.70.0"
-//    compile 'org.grails.plugins:quartz:2.0.13'
+    compile 'org.grails.plugins:quartz:2.0.13'
     compile 'org.grails.plugins:redis:2.0.4'
     compile 'org.grails.plugins:http-builder-helper:1.1.0'
 //    compile "org.grails.plugins:dropwizard-metrics:1.0.0.BUILD-SNAPSHOT"
