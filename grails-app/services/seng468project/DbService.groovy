@@ -21,11 +21,11 @@ class DbService {
 
     def addNewUser(String userId, String balance){
         if(userExists(userId)){
-            return null
+            return "ERROR: user $userId already exist"
         }else{
             def new_user = new User(username:userId,balance:new BigDecimal(balance), reservedBalance: new BigDecimal("0"))
             new_user.save(flush: true)
-            return new_user
+            return "Created user $userId"
         }
     }
 

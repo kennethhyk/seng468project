@@ -46,8 +46,8 @@ class CommandHandlerController {
     def addUser(){
         def res = request.JSON
         String userid = res.username
-        dbService.addNewUser(res.username, '0.00')
-        render status:200, contentType: "text/json", text: "[{\"response\": \"Created user $userid\"}]"
+        String msg = dbService.addNewUser(userid, '0.00')
+        render status:200, contentType: "text/json", text: "[{\"response\": \"$msg\"}]"
     }
 
     def front(){ }

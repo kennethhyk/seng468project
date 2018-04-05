@@ -36,9 +36,9 @@ class TransactionService {
     }
 
     String commitBuy(User user) {
-        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        Long thirtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 30000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = :user and t.status = :status and t.dateCreated> :dateCreated order by t.dateCreated desc",
-                ['user': user, 'status': TransactionStatusEnum.BUY, 'dateCreated': sixtySecondsAgo]) as List<StockTransaction>
+                ['user': user, 'status': TransactionStatusEnum.BUY, 'dateCreated': thirtySecondsAgo]) as List<StockTransaction>
 
         StockTransaction transaction = t[0]
 
@@ -65,9 +65,9 @@ class TransactionService {
     }
 
     String cancelBuy(User user) {
-        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        Long thirtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 30000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.BUY,sixtySecondsAgo]) as List<StockTransaction>
+                [user,TransactionStatusEnum.BUY,thirtySecondsAgo]) as List<StockTransaction>
 
         StockTransaction transaction = t[0]
 
@@ -102,9 +102,9 @@ class TransactionService {
     }
 
     String commitSell(User user) {
-        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        Long thirtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 30000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<StockTransaction>
+                [user,TransactionStatusEnum.SELL,thirtySecondsAgo]) as List<StockTransaction>
 
         StockTransaction transaction = t[0]
         if(!transaction) {
@@ -126,9 +126,9 @@ class TransactionService {
     }
     String cancelSell(User user) {
 
-        Long sixtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 60000
+        Long thirtySecondsAgo = new Timestamp(new Date().getTime()).getTime() - 30000
         def t = StockTransaction.executeQuery("select t from StockTransaction t where t.user = ? and t.status = ? and t.dateCreated> ? order by t.dateCreated desc",
-                [user,TransactionStatusEnum.SELL,sixtySecondsAgo]) as List<StockTransaction>
+                [user,TransactionStatusEnum.SELL,thirtySecondsAgo]) as List<StockTransaction>
 
         StockTransaction transaction = t[0]
 

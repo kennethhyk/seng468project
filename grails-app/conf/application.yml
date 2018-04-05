@@ -35,8 +35,8 @@ endpoints:
 ---
 grails:
     redis:
-        host: "192.168.1.148"
-        port: 44445
+        host: 127.0.0.1
+        port: 6379
         pooled: true
         resources: 15
         timeout: 5000
@@ -115,7 +115,7 @@ dataSource:
 environments:
     development:
         dataSource:
-            dbCreate: create-drop
+            dbCreate: update
             url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://localhost/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
