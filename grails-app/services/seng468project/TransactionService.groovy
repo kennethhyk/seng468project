@@ -326,11 +326,11 @@ class TransactionService {
             }
         } as ArrayList<TransactionTrigger>
 
-        QuoteServerTypeBean quote = null
-        int transactionNum = 1
         records.each {
-            quote = quoteService.getQuote(it.user,it.stockSymbol, transactionNum)
+            QuoteServerTypeBean quote = quoteService.getQuote(it.user,it.stockSymbol, 1)
             if(it.status == TriggerStatusEnum.SET_BUY_TRIGGER && quote.price <= it.triggerPrice){
+                it.status = TriggerStatusEnum.DONE
+                it.save()
                 // TODO: use commit buy
                 BigDecimal sharesCanBuy = it.reservedBalance/quote.price
                 BigDecimal sharesToBuy = sharesCanBuy.setScale(0, RoundingMode.FLOOR)
@@ -341,8 +341,7 @@ class TransactionService {
                 dbService.addAmount(it.user, amountToReturn.toString())
                 dbService.addStockShares(it.user,it.stockSymbol,sharesToBuy.intValueExact())
                 it.user.reservedBalance -= it.reservedBalance
-                it.user.save(flush: true)
-                it.status = TriggerStatusEnum.DONE
+//                it.user.save(flush: true)
             }else if(it.status == TriggerStatusEnum.SET_SELL_TRIGGER && quote.price >= it.triggerPrice){
                 // TODO: use sell
                 BigDecimal moneyToAdd = new BigDecimal(it.reservedShares)* quote.price
