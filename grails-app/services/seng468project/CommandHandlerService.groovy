@@ -20,10 +20,15 @@ class CommandHandlerService {
         return commandBean
     }
     String commandHandling(CommandBean commandBean, int transactionNum) {
-        User user = User.findByUsername(commandBean.parameterList[0] as String)
-        if(!user) {
-            return "no such user error"
+
+        User user = null
+        if(commandBean.command as String != "DUMPLOG"){
+            user = User.findByUsername(commandBean.parameterList[0] as String)
+            if(!user) {
+                return "no such user error"
+            }
         }
+
         switch(commandBean.command as String) {
             case "ADD":
                 UserCommandTypeBean obj = new UserCommandTypeBean(
@@ -235,7 +240,7 @@ class CommandHandlerService {
                         "0.00"
                 )
                 auditService.dispatch("zddbuzuoshi", auditService.getUserCommandString(obj))
-                return "DUMP LOG TO: $filename!"
+                return auditService.dumpLog(filename)
             case "DISPLAY_SUMMARY":
                 UserCommandTypeBean obj = new UserCommandTypeBean(
                         System.currentTimeMillis(),

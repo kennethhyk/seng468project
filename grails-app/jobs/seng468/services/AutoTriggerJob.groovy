@@ -5,7 +5,7 @@ class AutoTriggerJob {
     def TransactionService
 
     static triggers = {
-      simple repeatInterval: 6000 // execute job once in 5 seconds
+      simple repeatInterval: 60000 // execute job once in 5 seconds
     }
 
     def execute() {

@@ -16,6 +16,9 @@ class AuditService {
     String footer = "</log>"
 
     String dumpLog(String filename){
+        redisService.withRedis { Jedis redis ->
+            redis.bgsave()
+        }
 //        String username = null
 //        System.out.println("dumplog function")
 //        def records
@@ -43,7 +46,7 @@ class AuditService {
 //        writer.write(fileContent)
 //        writer.close()
 //        return fileContent
-        return ""
+        return "DUMP LOG TO: $filename!"
     }
 
     String displaySummary(User usr){
