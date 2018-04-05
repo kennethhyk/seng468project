@@ -32,7 +32,7 @@ class TransactionService {
                 quotedPrice: quote.price,
                 amount: amountPrice
         ).save(flush: true)
-        return "User $user.username requested to purchase \$$amountPrice value of stock $stockSymbol at price $quote.price\n Please send COMMIT_BUY to confirm in 30 seconds."
+        return "User $user.username requested to purchase \$$amountPrice value of stock $stockSymbol at price $quote.price Please send COMMIT_BUY to confirm in 30 seconds."
     }
 
     String commitBuy(User user) {
@@ -98,7 +98,7 @@ class TransactionService {
                 amount: sharesToSell
         ).save(flush: true)
 
-        return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price\n Please send COMMIT_SELL to confirm in 30 seconds"
+        return "User $user.username requested to sell $sharesToSell\$ shares of $stockSymbol at price $quote.price Please send COMMIT_SELL to confirm in 30 seconds"
     }
 
     String commitSell(User user) {
