@@ -1,11 +1,19 @@
 ---
 grails:
     profile: web
+    servlet:
+        version: 3.0
     codegen:
         defaultPackage: seng468project
     spring:
         transactionManagement:
             proxies: false
+#    dropwizard:
+#            metrics:
+#                reporterFrequency: 10 # report every 10 seconds
+#                csv-reporter:
+#                    active: true
+#                    output-dir: /report
 info:
     app:
         name: '@info.app.name@'
@@ -26,6 +34,15 @@ endpoints:
 
 ---
 grails:
+    redis:
+        host: 127.0.0.1
+        port: 6379
+        pooled: true
+        resources: 15
+        timeout: 5000
+    gorm:
+        failOnError: true
+        autoFlush: true
     mime:
         disable:
             accept:
@@ -84,7 +101,7 @@ endpoints:
 hibernate:
     cache:
         queries: false
-        use_second_level_cache: true
+        use_second_level_cache: false
         use_query_cache: false
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
 
@@ -98,11 +115,12 @@ dataSource:
 environments:
     development:
         dataSource:
-            dbCreate: create-drop
-            url: jdbc:mysql://localhost/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+            dbCreate: update
+            url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+#            url: jdbc:mysql://localhost/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
             username : "root"
-            password : "root"
+            password : "toor"
 #            url: jdbc:mysql://localhost:3306/db1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
     test:
         dataSource:
@@ -110,23 +128,24 @@ environments:
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     production:
         dataSource:
-            dbCreate: create-drop
-            url: jdbc:mysql://172.17.0.2:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+            dbCreate: update
+            url: jdbc:mysql://192.168.1.130:44445/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
+#            url: jdbc:mysql://172.17.0.2:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
 #            url: jdbc:mysql://localhost:3306/project_1?autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8
             driverClassName : "com.mysql.jdbc.Driver"
             username : "root"
-            password : "root"
+            password : "toor"
             properties:
                 jmxEnabled: true
-                initialSize: 5
-                maxActive: 50
+                initialSize: 50
+                maxActive: 500
                 minIdle: 5
-                maxIdle: 25
+                maxIdle: 10
                 maxWait: 10000
                 maxAge: 600000
                 timeBetweenEvictionRunsMillis: 5000
                 minEvictableIdleTimeMillis: 60000
-                validationQuery: SELECT 1
+                validationQuery: SELECT 1 FROM DUAL
                 validationQueryTimeout: 3
                 validationInterval: 15000
                 testOnBorrow: true
@@ -134,3 +153,4 @@ environments:
                 testOnReturn: false
                 jdbcInterceptors: ConnectionState
                 defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+

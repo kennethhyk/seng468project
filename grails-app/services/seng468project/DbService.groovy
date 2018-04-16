@@ -1,222 +1,81 @@
 package seng468project
 
 import grails.transaction.Transactional
-import seng468project.beans.AccountTransactionTypeBean
-import seng468project.beans.UserCommandTypeBean
-
-import java.security.*
 
 @Transactional
 class DbService {
 
-    def AuditService
-
-    def refreshDb(){
-        TransactionTrigger.executeUpdate('delete from TransactionTrigger')
-        User.executeUpdate('delete from User')
-    }
-
-    def addAmount(String userId, String amount, int transactionNum){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
+    def addAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
-        row.balance = row.balance.add(bd_amount)
-        row.save()
-
-        AccountTransactionTypeBean obj = new AccountTransactionTypeBean(
-                System.currentTimeMillis(),
-                "TRANSACTION SERVER: ZaaS",
-                transactionNum,
-                "ADD",
-                userId,
-                amount
-        )
-        String str = auditService.getAccountTransactionString(obj)
-        new LogHistory(row,str).save()
-        return 1
+        user.balance = user.balance.add(bd_amount)
+//        user.save(flush: true)
+        return "added $amount to $user.username"
     }
 
-    def removeAmount(String userId, String amount){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
+    def removeAmount(User user, String amount){
         BigDecimal bd_amount = new BigDecimal(amount)
-        row.balance = row.balance.subtract(bd_amount)
-        row.save()
-        return 1
+        user.balance = user.balance.subtract(bd_amount)
+//        user.save(flush: true)
+        return amount
     }
 
-    //TODO: change balance type
     def addNewUser(String userId, String balance){
         if(userExists(userId)){
-            return 0
+            return "ERROR: user $userId already exist"
         }else{
-            BigDecimal bd_balance = new BigDecimal(balance)
-            BigDecimal zero       = new BigDecimal("0")
-
-            def new_user = new User(username:userId,balance:bd_balance,reservedBalance:zero)
-
-            new_user.stockShareMap = new HashMap<>()
-            new_user.save()
-            return 1
+            def new_user = new User(username:userId,balance:new BigDecimal(balance), reservedBalance: new BigDecimal("0"))
+            new_user.save(flush: true)
+            return "Created user $userId"
         }
     }
 
-    //deprecated
-    def digestPassword(String password){
-        MessageDigest md = MessageDigest.getInstance("SHA")
-        byte[] dataBytes = password.getBytes()
-        md.update(dataBytes)
-        byte[] digest = md.digest()
-        String digestedPassword = Arrays.toString(digest)
-
-        return digestedPassword
-    }
-
-    //deprecated
-    def checkPassword(String userId, String password){
-
-        def results = User.createCriteria().get{
-            eq 'username', userId
-            and{
-                eq 'password',password
-            }
+    Integer getUserStocks(User user, String symbol){
+//        def t = StockShares.executeQuery("from StockShares where user_id = ? and stockSymbol = ?",
+//                ['user': user.id,'symbol': symbol])[0]
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+        if(stockShares){
+            return stockShares.shares
+        }else {
+            return 0
         }
-        return results
     }
 
-    // can be deprecated
+    def addStockShares(User user, String symbol, Integer shares){
+        //        def t = StockShares.executeQuery("select s from StockShares as s where s.user_id = ? and s.stockSymbol = ?", [user.id,symbol]) as List<StockShares>
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+//        StockShares stockShares = t[0]
+        if(!stockShares){
+            new StockShares(user_id: user.id,stockSymbol: symbol,shares: shares).save(flush: true)
+        }else{
+            stockShares.shares += shares
+//            stockShares.save(flush: true)
+        }
+    }
+
+    def removeStockShares(User user, String symbol, Integer shares){
+        StockShares stockShares = StockShares.findByUser_idAndStockSymbol(user.id, symbol)
+        if(!stockShares){
+            return 0
+        }
+        stockShares.shares -= shares
+//        stockShares.save(flush: true)
+        return 1
+    }
+
+    def reserveMoney(User user, BigDecimal reserveAmount){
+        user.balance -= reserveAmount
+        user.reservedBalance += reserveAmount
+//        user.save(flush: true)
+    }
+
+    def releaseReservedMoney(User user, BigDecimal releaseAmount){
+        user.balance = user.balance.add(releaseAmount)
+        user.reservedBalance = user.reservedBalance.subtract(releaseAmount)
+//        user.save(flush: true)
+    }
+
     def userExists(String userId){
-        // get all rows in table
-        def results = User.createCriteria().get{
-            eq 'username', userId
-        } as User
-
-        if(results){
-            return true
-        }
-        return false
-    }
-
-    // TODO: need to be updated once there are more than one company
-    def getUserBalance(String userId){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row) {
-            return [0,0]
-        }else{
-            return [1,row.balance.setScale(2).toString()]
-        }
-    }
-
-    //TODO: typecheck
-    def updateUserBalance(String userId, String balance){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-        if(!row){
-            return 0
-        }
-
-        row.balance = new BigDecimal(balance)
-        row.save()
-
-        return 1
-    }
-
-
-    def getUserStocks(String userId, String symbol){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row) {
-                return [0,0]
-        }else{
-            if(row.stockShareMap[symbol]){
-                return [1,Integer.parseInt(row.stockShareMap[symbol] as String)]
-            }else{
-                row.stockShareMap[symbol] = "0"
-                return [1,0]
-            }
-
-        }
-    }
-
-    def addStockShares(String userId, String symbol, Integer shares){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
-        // if not in list, add it in
-        if(!row.stockShareMap[symbol]){
-            row.stockShareMap[symbol] = Integer.toString(shares)
-        }else{
-            row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() + shares)
-        }
-        row.save()
-        return 1
-    }
-
-    def removeStockShares(String userId, String symbol, Integer shares){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
-        row.stockShareMap[symbol] = Integer.toString(row.stockShareMap[symbol].toInteger() - shares)
-
-        row.save()
-        return 1
-    }
-
-    def reserveMoney(String userId, BigDecimal reserveAmount){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
-        row.balance -= reserveAmount
-        row.reservedBalance += reserveAmount
-        row.save()
-        return 1
-    }
-
-    def releaseReservedMoney(String userId, BigDecimal releaseAmount){
-        def row = User.createCriteria().get{
-            eq'username',userId
-        } as User
-
-        if(!row){
-            return 0
-        }
-
-        row.balance = row.balance.add(releaseAmount)
-        row.reservedBalance = row.reservedBalance.subtract(releaseAmount)
-        row.save()
-        return 1
+        def results = User.findByUsername(userId)
+        return results
     }
 }

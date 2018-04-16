@@ -2,9 +2,9 @@ package seng468project
 
 import seng468project.enums.TransactionStatusEnum
 
-class Transaction {
+class StockTransaction {
 
-    static hasOne = [user:User]
+    static belongsTo = [user:User]
     TransactionStatusEnum status
     String stockSymbol
     BigDecimal quotedPrice
@@ -12,20 +12,22 @@ class Transaction {
     Long dateCreated
     Long lastUpdated
 
-    static constraints = {
+    static mapping = {
+        dateCreated indexColumn:[name:'DateCreated_Idx']
+        status indexColumn:[name:'Status_Idx']
     }
 
     @Override
     public String toString() {
         return "Transaction{" +
                 "id=" + id +
-                ", user=" + user +
+                ", user=" + user.username+
                 ", status=" + status +
                 ", stockSymbol='" + stockSymbol + '\'' +
                 ", quotedPrice=" + quotedPrice +
                 ", amount=" + amount +
                 ", dateCreated=" + dateCreated +
                 ", lastUpdated=" + lastUpdated +
-                '}';
+                '}'
     }
 }
